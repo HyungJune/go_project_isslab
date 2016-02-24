@@ -96,4 +96,6 @@ var tlsVersion = map[uint16]string{
 	log.Printf("client: read %q (%d bytes)", string(reply[:n]), n)
 	log.Print("client: exiting")
 	*/
+	
 }
+
