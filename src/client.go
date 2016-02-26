@@ -10,7 +10,7 @@ import (
     "encoding/xml"
     "io"
 )
-
+/////////////////////////////////////////////////////////////////////////////////xml struct
 type info struct {
            XMLName xml.Name `xml:"info"`
            Version string `xml:"version"`
@@ -22,9 +22,11 @@ type info struct {
            Infos []info  `xml:"info"`
          }
 
-
+////////////////////////////////////////////////////////////////////////////////////////////
 func main() {
 
+
+/////////////////////////////////////////////////////////////////////////////////////////mapping
 	var findCipherSuite = map[uint16]string{
     tls.TLS_RSA_WITH_RC4_128_SHA:      `TLS_RSA_WITH_RC4_128_SHA`,
     tls.TLS_RSA_WITH_3DES_EDE_CBC_SHA: `TLS_RSA_WITH_3DES_EDE_CBC_SHA`,
@@ -52,6 +54,7 @@ var tlsVersion = map[uint16]string{
     tls.VersionTLS12: `VersionTLS12`,
 }
 
+////////////////////////////////////////////////////////////////////////////////////////tcp connection part
 
 	cert, err := tls.LoadX509KeyPair("certs/client.pem", "certs/client.key")
 	if err != nil {
@@ -72,24 +75,70 @@ var tlsVersion = map[uint16]string{
 
 	defer conn.Close()
 	log.Println("client: connected to: ", conn.RemoteAddr())
+
 	state := conn.ConnectionState()
+
 	
+////////////////////////////////////////////////////////////////////////////////////certificate information
 
 	for _, v := range state.PeerCertificates {
 		fmt.Println("Server public key : ")
 		fmt.Println(x509.MarshalPKIXPublicKey(v.PublicKey))
 	}
-	fmt.Println("SerialNumber : ", state.PeerCertificates[0].SerialNumber)
-	fmt.Println("Subject : ", state.PeerCertificates[0].Subject)		
-	fmt.Println("SignatureAlgorithm : ", state.PeerCertificates[0].SignatureAlgorithm)
+    fmt.Println("\n")
 
 
-	fmt.Println("SSL Version : ", tlsVersion[state.Version])
+    ////////////////////////////////////////////////////////////////////////////////////certificate information
+    fmt.Println("Issuer : ", state.PeerCertificates[0].Issuer)
+    fmt.Println("\n")
+    fmt.Println("certificate validity.start : ", state.PeerCertificates[0].NotBefore)
+    fmt.Println("\n")
+    fmt.Println("certificate validity.end : ", state.PeerCertificates[0].NotAfter)
+    fmt.Println("\n")
+    fmt.Println("certificate KeyUsage : ", state.PeerCertificates[0].KeyUsage)
+    fmt.Println("\n")
+    fmt.Println("certificate ExtKeyUsage : ", state.PeerCertificates[0].ExtKeyUsage)
+    fmt.Println("\n")
+    fmt.Println("certificate BasicConstraintsValid : ", state.PeerCertificates[0].BasicConstraintsValid)
+    fmt.Println("\n")
+    fmt.Println("certificate SubjectKeyId : ", state.PeerCertificates[0].SubjectKeyId)
+    fmt.Println("\n")
+    fmt.Println("certificate AuthorityKeyId : ", state.PeerCertificates[0].AuthorityKeyId)
+    fmt.Println("\n")
+    fmt.Println("certificate OCSPServer : ", state.PeerCertificates[0].OCSPServer)
+    fmt.Println("\n")
+    fmt.Println("certificate IssuingCertificateURL : ", state.PeerCertificates[0].IssuingCertificateURL)
+    fmt.Println("\n")
+    fmt.Println("certificate DNSNames(subject) : ", state.PeerCertificates[0].DNSNames)
+    fmt.Println("\n")
+    fmt.Println("certificate EmailAddresses(subject): ", state.PeerCertificates[0].EmailAddresses)
+    fmt.Println("\n")
+    fmt.Println("certificate IPAddresses(subject) : ", state.PeerCertificates[0].IPAddresses)
+    fmt.Println("\n")
+    fmt.Println("certificate Signature  : ", state.PeerCertificates[0].Signature)
+    fmt.Println("\n")
+    fmt.Println("certificate Version  : ", state.PeerCertificates[0].Version)
+    fmt.Println("\n")
+	fmt.Println("certificate SerialNumber : ", state.PeerCertificates[0].SerialNumber)
+    fmt.Println("\n")
+	fmt.Println("certificate Subject : ", state.PeerCertificates[0].Subject)
+    fmt.Println("\n")		
+	fmt.Println("certificate SignatureAlgorithm : ", state.PeerCertificates[0].SignatureAlgorithm)
+    fmt.Println("\n")
+	fmt.Println("certificate PublicKeyAlgorithm: ", state.PeerCertificates[0].PublicKeyAlgorithm)
+    fmt.Println("\n")
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////connectionstate information
+    fmt.Println("SSL Version : ", tlsVersion[state.Version])
+    fmt.Println("\n")
 	fmt.Println("Server cipher suite : ", findCipherSuite[state.CipherSuite])
+    fmt.Println("\n")
+	fmt.Println("VerifiedChains : ", state.VerifiedChains)
+    fmt.Println("\n")
 	
 	
-	
-	
+	/////////////////////////////////////////////////////////////////////////////make xml file
 	  v := &infoSet{}
 
          v.Infos = append(v.Infos, info{Version: tlsVersion[state.Version], CipherSuite: findCipherSuite[state.CipherSuite]})
@@ -104,6 +153,6 @@ var tlsVersion = map[uint16]string{
          if err := enc.Encode(v); err != nil {
                  fmt.Printf("error: %v\n", err)
          }
-
+    /////////////////////////////////////////////////////////////////////////////////////////////////
          
 }
