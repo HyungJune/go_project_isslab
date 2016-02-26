@@ -54,6 +54,15 @@ var tlsVersion = map[uint16]string{
     tls.VersionTLS12: `VersionTLS12`,
 }
 
+
+var findSignatureAlgorithm = map[x509.PublicKeyAlgorithm]string{
+    0: `UnknownPublicKeyAlgorithm`,
+    1: `RSA`,
+    2: `DSA`,
+    3: `ECDSA`,
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////////////tcp connection part
 
 	cert, err := tls.LoadX509KeyPair("certs/client.pem", "certs/client.key")
@@ -125,10 +134,10 @@ var tlsVersion = map[uint16]string{
     fmt.Println("\n")		
 	fmt.Println("certificate SignatureAlgorithm : ", state.PeerCertificates[0].SignatureAlgorithm)
     fmt.Println("\n")
-	fmt.Println("certificate PublicKeyAlgorithm: ", state.PeerCertificates[0].PublicKeyAlgorithm)
+	fmt.Println("certificate PublicKeyAlgorithm: ", findSignatureAlgorithm[state.PeerCertificates[0].PublicKeyAlgorithm])
     fmt.Println("\n")
-
-
+    fmt.Println("certificate PublicKey: ", state.PeerCertificates[0].PublicKey)
+    fmt.Println("\n")
     ////////////////////////////////////////////////////////////////////////////////////////////connectionstate information
     fmt.Println("SSL Version : ", tlsVersion[state.Version])
     fmt.Println("\n")
@@ -136,8 +145,6 @@ var tlsVersion = map[uint16]string{
     fmt.Println("\n")
 	fmt.Println("VerifiedChains : ", state.VerifiedChains)
     fmt.Println("\n")
-	
-	
 	/////////////////////////////////////////////////////////////////////////////make xml file
 	  v := &infoSet{}
 
