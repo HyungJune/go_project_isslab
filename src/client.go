@@ -3,14 +3,24 @@ package main
 import (
 	"crypto/tls"
 	"fmt"
-	//"io"
 	"log"
-	//"crypto/rand"
 	"crypto/x509"
 	"bufio"
     "os"
+    "encoding/xml"
+    "io"
 )
 
+type info struct {
+           XMLName xml.Name `xml:"info"`
+           Version string `xml:"version"`
+           CipherSuite string `xml:"cipherSuite"`
+         }
+
+         type infoSet struct {
+           XMLName xml.Name `xml:"InfoSet"`
+           Infos []info  `xml:"info"`
+         }
 
 
 func main() {
@@ -43,10 +53,6 @@ var tlsVersion = map[uint16]string{
 }
 
 
-
-
-
-
 	cert, err := tls.LoadX509KeyPair("certs/client.pem", "certs/client.key")
 	if err != nil {
 		log.Fatalf("server: loadkeys: %s", err)
@@ -74,28 +80,30 @@ var tlsVersion = map[uint16]string{
 		fmt.Println(x509.MarshalPKIXPublicKey(v.PublicKey))
 	}
 	fmt.Println("SerialNumber : ", state.PeerCertificates[0].SerialNumber)
-		fmt.Println("Subject : ", state.PeerCertificates[0].Subject)		
+	fmt.Println("Subject : ", state.PeerCertificates[0].Subject)		
 	fmt.Println("SignatureAlgorithm : ", state.PeerCertificates[0].SignatureAlgorithm)
 
 
 	fmt.Println("SSL Version : ", tlsVersion[state.Version])
 	fmt.Println("Server cipher suite : ", findCipherSuite[state.CipherSuite])
-	//fmt.Printf("server cipher suite : (0x%04x)\n", state.CipherSuite)
-	//fmt.Println("SSL Version : ", state.ServerName)
-	//log.Println("client: handshake: ", state.HandshakeComplete)
-	//log.Println("client: mutual: ", state.NegotiatedProtocolIsMutual)
-	/*
-	message := "Hello\n"
-	n, err := io.WriteString(conn, message)
-	if err != nil {
-		log.Fatalf("client: write: %s", err)
-	}
-	log.Printf("client: wrote %q (%d bytes)", message, n)
-	reply := make([]byte, 256)
-	n, err = conn.Read(reply)
-	log.Printf("client: read %q (%d bytes)", string(reply[:n]), n)
-	log.Print("client: exiting")
-	*/
 	
-}
+	
+	
+	
+	  v := &infoSet{}
 
+         v.Infos = append(v.Infos, info{Version: tlsVersion[state.Version], CipherSuite: findCipherSuite[state.CipherSuite]})
+         
+         filename := "Info.xml"
+         file, _ := os.Create(filename)
+
+         xmlWriter := io.Writer(file)
+
+         enc := xml.NewEncoder(xmlWriter)
+         enc.Indent("  ", "    ")
+         if err := enc.Encode(v); err != nil {
+                 fmt.Printf("error: %v\n", err)
+         }
+
+         
+}
