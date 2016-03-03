@@ -30,17 +30,17 @@ func main() {
 	var findCipherSuite = map[uint16]string{
     tls.TLS_RSA_WITH_RC4_128_SHA:      `TLS_RSA_WITH_RC4_128_SHA`,
     tls.TLS_RSA_WITH_3DES_EDE_CBC_SHA: `TLS_RSA_WITH_3DES_EDE_CBC_SHA`,
-    tls.TLS_RSA_WITH_AES_128_CBC_SHA:  `TLS_RSA_WITH_AES_128_CBC_SHA` ,         
-    tls.TLS_RSA_WITH_AES_256_CBC_SHA:   `TLS_RSA_WITH_AES_256_CBC_SHA` ,         
-    tls.TLS_RSA_WITH_AES_128_GCM_SHA256:  `TLS_RSA_WITH_AES_128_GCM_SHA256` ,       
-    tls.TLS_RSA_WITH_AES_256_GCM_SHA384:   `TLS_RSA_WITH_AES_256_GCM_SHA384` ,      
-    tls.TLS_ECDHE_ECDSA_WITH_RC4_128_SHA:  `TLS_ECDHE_ECDSA_WITH_RC4_128_SHA` ,      
-    tls.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA: `TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SH` ,   
-    tls.TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA:  `TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA` ,  
-    tls.TLS_ECDHE_RSA_WITH_RC4_128_SHA: `TLS_ECDHE_RSA_WITH_RC4_128_SHA` ,         
-    tls.TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA: `TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA` ,    
-    tls.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA:  `TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA` ,    
-    tls.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA:    `TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA` ,  
+    tls.TLS_RSA_WITH_AES_128_CBC_SHA:  `TLS_RSA_WITH_AES_128_CBC_SHA` ,
+    tls.TLS_RSA_WITH_AES_256_CBC_SHA:   `TLS_RSA_WITH_AES_256_CBC_SHA` ,
+    tls.TLS_RSA_WITH_AES_128_GCM_SHA256:  `TLS_RSA_WITH_AES_128_GCM_SHA256` ,
+    tls.TLS_RSA_WITH_AES_256_GCM_SHA384:   `TLS_RSA_WITH_AES_256_GCM_SHA384` ,
+    tls.TLS_ECDHE_ECDSA_WITH_RC4_128_SHA:  `TLS_ECDHE_ECDSA_WITH_RC4_128_SHA` ,
+    tls.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA: `TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SH` ,
+    tls.TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA:  `TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA` ,
+    tls.TLS_ECDHE_RSA_WITH_RC4_128_SHA: `TLS_ECDHE_RSA_WITH_RC4_128_SHA` ,
+    tls.TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA: `TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA` ,
+    tls.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA:  `TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA` ,
+    tls.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA:    `TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA` ,
     tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256:   `TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256` ,
     tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256: `TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256` ,
     tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384:   `TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384` ,
@@ -75,7 +75,7 @@ var findSignatureAlgorithm = map[x509.PublicKeyAlgorithm]string{
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Print("Enter Ip (+ port) : ")
 	targetIp, _ := reader.ReadString('\n')
-
+	fmt.Printf("target IP: %s", targetIp)
 
 	conn, err := tls.Dial("tcp", targetIp, &config)
 	if err != nil {
@@ -87,7 +87,7 @@ var findSignatureAlgorithm = map[x509.PublicKeyAlgorithm]string{
 
 	state := conn.ConnectionState()
 
-	
+
 ////////////////////////////////////////////////////////////////////////////////////certificate information
 
 	for _, v := range state.PeerCertificates {
@@ -131,7 +131,7 @@ var findSignatureAlgorithm = map[x509.PublicKeyAlgorithm]string{
 	fmt.Println("certificate SerialNumber : ", state.PeerCertificates[0].SerialNumber)
     fmt.Println("\n")
 	fmt.Println("certificate Subject : ", state.PeerCertificates[0].Subject)
-    fmt.Println("\n")		
+    fmt.Println("\n")
 	fmt.Println("certificate SignatureAlgorithm : ", state.PeerCertificates[0].SignatureAlgorithm)
     fmt.Println("\n")
 	fmt.Println("certificate PublicKeyAlgorithm: ", findSignatureAlgorithm[state.PeerCertificates[0].PublicKeyAlgorithm])
@@ -149,7 +149,7 @@ var findSignatureAlgorithm = map[x509.PublicKeyAlgorithm]string{
 	  v := &infoSet{}
 
          v.Infos = append(v.Infos, info{Version: tlsVersion[state.Version], CipherSuite: findCipherSuite[state.CipherSuite]})
-         
+
          filename := "Info.xml"
          file, _ := os.Create(filename)
 
@@ -161,5 +161,5 @@ var findSignatureAlgorithm = map[x509.PublicKeyAlgorithm]string{
                  fmt.Printf("error: %v\n", err)
          }
     /////////////////////////////////////////////////////////////////////////////////////////////////
-         
+
 }
