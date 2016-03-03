@@ -6,6 +6,7 @@ import javax.swing.JOptionPane;
 
 import Frame.IVDFrame;
 import VAtool.IVDTool;
+import VAtool.Heartbleed_tester;
 
 public class MAIN {
 
@@ -24,8 +25,9 @@ public class MAIN {
 		
 		host = JOptionPane.showInputDialog("Enter the host name:");
 		ivd.setHost(host);
-		ivd.tryHandshake();
-	
+		//ivd.heartbleadTest();
+		ivd.defaultHandshake();
+		
 	}
 
 }
