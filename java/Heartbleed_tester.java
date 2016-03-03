@@ -129,8 +129,12 @@ public class Heartbleed_tester {
 		
 		0x00, 0x0f, //heartbeat 
 		0x00, 0x01, 
-		0x01 
+		0x01, 
 		// Extension
+		
+		0x00, 0x0d, //signature
+		0x00, 0x02,
+		0x00, 0x01
 	}; 
 	private static byte sslHello_origin[] = new byte[] { 
 			0x16, 0x03, 0x02, 0x00, (byte) 0xdc, // Content type = 16 (handshake message); Version = 03 02; Packet length = 00 dc
