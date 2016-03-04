@@ -73,6 +73,7 @@ public class IVDTool {
 	}
 	
 	public void defaultHandshake(){
+		
 		SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
 		System.out.println("Connecting... " + host + " : " + port);
 		try {
@@ -390,8 +391,8 @@ public class IVDTool {
 		0x00, 0x0d,	//signature extension
 		0x00, 0x06, //length
 		0x00, 0x04,	//S&H length 
-	    0x04, 0x03,	//hash: md5, signature: anon
-	    0x04, 0x01
+	    0x01, 0x00,	//hash: md5, signature: anon
+	    0x01, 0x00
 	   
 		
 		
