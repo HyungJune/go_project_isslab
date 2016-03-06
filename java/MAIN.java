@@ -6,7 +6,6 @@ import javax.swing.JOptionPane;
 
 import Frame.IVDFrame;
 import VAtool.IVDTool;
-import VAtool.Heartbleed_tester;
 
 public class MAIN {
 
@@ -19,14 +18,16 @@ public class MAIN {
 	public static void main(String[] args) throws KeyManagementException, NoSuchAlgorithmException, IOException {
 		// TODO Auto-generated method stub
 		//System.setProperty("jsse.enableSNIExtension", "false");
-		//IVDFrame frame = new IVDFrame();
-		String host = null;
-		IVDTool ivd = new IVDTool();
+		IVDFrame frame = new IVDFrame();
+		//String host = null;
+		//IVDTool ivd = new IVDTool();
 		
-		host = JOptionPane.showInputDialog("Enter the host name:");
-		ivd.setHost(host);
+		
+		
+		//host = JOptionPane.showInputDialog("Enter the host name:");
+		//ivd.setHost(host);
 		//ivd.heartbleadTest();
-		ivd.defaultHandshake();
+		//ivd.defaultHandshake();
 		
 	}
 

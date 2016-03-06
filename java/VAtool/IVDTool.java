@@ -2,6 +2,8 @@ package VAtool;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -20,6 +22,10 @@ import javax.net.ssl.SSLSocketFactory;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1Primitive;
 import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.output.Format;
+import org.jdom.output.XMLOutputter;
 
 
 
@@ -58,6 +64,11 @@ public class IVDTool {
 	private String host;
 	private static int port;
 	
+	String ski;
+	String uki;
+	
+	
+	
 	public IVDTool(){
 		host = null;
 		port = 443;
@@ -71,6 +82,8 @@ public class IVDTool {
 		
 		return asnInpuStream.readObject();
 	}
+	
+	
 	
 	public void defaultHandshake(){
 		
@@ -102,8 +115,8 @@ public class IVDTool {
 						    ASN1Primitive extensionValue;
 							try {
 								extensionValue = JcaX509ExtensionUtils.parseExtensionValue(encodedExtensionValueA);
-								String values = extensionValue.toString();
-								System.out.println("https.tls.certificate.parsed.extensions.authority_key_id : " + values.substring(5,45));
+								uki = extensionValue.toString();
+								System.out.println("https.tls.certificate.parsed.extensions.authority_key_id : " + uki.substring(5,45));
 							} catch (IOException e1) {
 								// TODO Auto-generated catch block
 								e1.printStackTrace();
@@ -121,8 +134,8 @@ public class IVDTool {
 							try {
 								extensionValue = JcaX509ExtensionUtils
 								        .parseExtensionValue(encodedExtensionValueB);
-								String values = extensionValue.toString();
-								System.out.println("443.https.tls.certificate.parsed.extensions.subject_key_id : " + values.substring(1,41));
+								ski = extensionValue.toString();
+								System.out.println("443.https.tls.certificate.parsed.extensions.subject_key_id : " + ski.substring(1,41));
 							} catch (IOException e1) {
 								// TODO Auto-generated catch block
 								e1.printStackTrace();
@@ -145,11 +158,123 @@ public class IVDTool {
 						System.out.println("443.https.tls.cipher_suite.name : "+ socket.getSession().getCipherSuite() );
 						System.out.println("443.https.tls.version : "+ socket.getSession().getProtocol() );
 						
+						
+						
+						
+						
+						
+						Document doc = new Document();  
+						
+						
+						Element InfoSet = new Element("InfoSet");
+						  
+						Element Info = new Element("Info");
+						
+						Element info_name1 = new Element("public_key");
+						Element info_name2 = new Element("authority_key_id");
+						Element info_name3 = new Element("basic_constraints");
+						Element info_name4 = new Element("certificate_policies");
+						Element info_name5 = new Element("extended_key_usage");
+						Element info_name6 = new Element("subject_key_id");
+						Element info_name7 = new Element("digital_signature");
+						Element info_name8 = new Element("key_encipherment");
+						Element info_name9 = new Element("dns_names");
+						Element info_name10 = new Element("issuer_dn");
+						Element info_name11 = new Element("serial_number");
+						Element info_name12 = new Element("signature_algorithm");
+						Element info_name13 = new Element("signature_algorithm_oid");
+						Element info_name14 = new Element("subject_dn");
+						Element info_name15 = new Element("validity_end");
+						Element info_name16 = new Element("validity_start");
+						Element info_name17 = new Element("version");
+						Element info_name18 = new Element("cipher_suite_name");
+						Element info_name19 = new Element("tls_version");
+						
+						
+						
+						InfoSet.addContent(Info);
+						Info.addContent(info_name1);
+						Info.addContent(info_name2);
+						Info.addContent(info_name3);
+						Info.addContent(info_name4);
+						Info.addContent(info_name5);
+						Info.addContent(info_name6);
+						Info.addContent(info_name7);
+						Info.addContent(info_name8);
+						Info.addContent(info_name9);
+						Info.addContent(info_name10);
+						Info.addContent(info_name11);
+						Info.addContent(info_name12);
+						Info.addContent(info_name13);
+						Info.addContent(info_name14);
+						Info.addContent(info_name15);
+						Info.addContent(info_name16);
+						Info.addContent(info_name17);
+						Info.addContent(info_name18);
+						Info.addContent(info_name19);
+						
+						info_name1.setText(x509cert.getPublicKey().toString());
+						info_name2.setText(uki.substring(5,45));
+						info_name3.setText(String.valueOf(x509cert.getBasicConstraints()));
+						info_name4.setText("null");
+						info_name5.setText(x509cert.getExtendedKeyUsage().toString());
+						info_name6.setText(ski.substring(1,41));
+						info_name7.setText(String.valueOf(x509cert.getKeyUsage()[0]));
+						info_name8.setText(String.valueOf(x509cert.getKeyUsage()[2]));
+						info_name9.setText(x509cert.getSubjectAlternativeNames().toString());
+						info_name10.setText(x509cert.getIssuerX500Principal().getName());
+						info_name11.setText(x509cert.getSerialNumber().toString());
+						info_name12.setText(x509cert.getSigAlgName().toString());
+						info_name13.setText(x509cert.getSigAlgOID().toString());
+						info_name14.setText(x509cert.getSubjectDN().getName());
+						info_name15.setText(x509cert.getNotBefore().toString());
+						info_name16.setText(x509cert.getNotAfter().toString());
+						info_name17.setText(String.valueOf(x509cert.getVersion()));
+						info_name18.setText(socket.getSession().getCipherSuite().toString());
+						info_name19.setText(socket.getSession().getProtocol().toString());
+						
+						doc.setRootElement(InfoSet);
+						
+						
+						
+						
+						 FileOutputStream out = new FileOutputStream("d:\\Info.xml"); 
+					      //xml 파일을 떨구기 위한 경로와 파일 이름 지정해 주기
+					      XMLOutputter serializer = new XMLOutputter();                 
+					                                                                    
+					      Format f = serializer.getFormat();                            
+					      f.setEncoding("UTF-8");
+					      //encoding 타입을 UTF-8 로 설정
+					      f.setIndent(" ");                                             
+					      f.setLineSeparator("\r\n");                                   
+					      f.setTextMode(Format.TextMode.TRIM);                          
+					      serializer.setFormat(f);                                      
+					                                                                    
+					      serializer.output(doc, out);                                  
+					      out.flush();                                                  
+					      out.close();    
+					      
+					      //String 으로 xml 출력
+					     // XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat().setEncoding("UTF-8")) ;
+					     // System.out.println(outputter.outputString(doc));
+						
+						
+						
+						
+						
+						
+						
 												
 					} catch (SSLPeerUnverifiedException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					} catch (CertificateParsingException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (FileNotFoundException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (IOException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
