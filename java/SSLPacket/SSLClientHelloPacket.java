@@ -32,14 +32,14 @@ public class SSLClientHelloPacket {
 		
 		this.tlsVersion = new byte[2];
 		this.tlsVersion[0] = 0x03;
-		this.tlsVersion[1] = 0x02;
+		this.tlsVersion[1] = 0x03;
 		
 		
 		this.messageType = 0x01;	
 
 		this.clientVersion = new byte[2];
 		this.clientVersion[0] = 0x03;
-		this.clientVersion[1] = 0x02;
+		this.clientVersion[1] = 0x03;
 		
 		/* Default random */
 		this.random = new byte[32];
@@ -98,14 +98,17 @@ public class SSLClientHelloPacket {
 		int payloadTotalSize = this.clientVersion.length + this.random.length + this.ciphersuitLength.length
 				+ 2*this.ciphersuits.length + this.extensionLength.length + extensionTotalSize + 3;
 		System.out.println("PayloadTotalSize : " + payloadTotalSize);
-		this.payloadLength = ByteBuffer.allocate(3).putShort((short)payloadTotalSize).array();
-		
-		int totalSize = payloadTotalSize + this.tlsVersion.length + 2 + this.payloadLength.length + 2;
+		this.payloadLength = new byte[3];
+		payloadLength[0] = 0x00;
+		byte[] temp = ByteBuffer.allocate(2).putShort((short)payloadTotalSize).array();
+		payloadLength[1] = temp[0];
+		payloadLength[2] = temp[1];
+		int totalSize = payloadTotalSize + this.tlsVersion.length + this.payloadLength.length-1;
 		
 		this.packetLength = ByteBuffer.allocate(2).putShort((short)totalSize).array();
 		System.out.println("PacketLength = " + String.format("0x%02X", packetLength[0]) + " " 
 				+ String.format("0x%02X", packetLength[1]));
-		this.packet = new byte[totalSize];
+		this.packet = new byte[totalSize+5];
 	}
 	
 	public byte[] makeBytePacket(){
@@ -167,6 +170,11 @@ public class SSLClientHelloPacket {
 		return start;
 	}
 	
+	public void printf_packet(){
+		for(byte b : this.packet){
+			System.out.format("0x%x ", b);
+		}
+	}
 	
 }
 

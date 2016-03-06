@@ -96,7 +96,8 @@ public class IVDFrame extends JFrame{
 		 
 		    public void actionPerformed(ActionEvent e) {
 		    	ivd.setHost(textField.getText());
-				ivd.defaultHandshake();
+				//ivd.defaultHandshake();
+				ivd.heartbleadTest();
 				JOptionPane.showMessageDialog(null, "Complete!");
 		    }
 		});
@@ -106,7 +107,8 @@ public class IVDFrame extends JFrame{
 		btnAnalyze.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent arg0) {
 				ivd.setHost(textField.getText());
-				ivd.defaultHandshake();
+				//ivd.defaultHandshake();
+				ivd.heartbleadTest();
 				JOptionPane.showMessageDialog(null, "Complete!");
 				
 			}

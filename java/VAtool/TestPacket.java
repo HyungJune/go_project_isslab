@@ -12,14 +12,15 @@ public class TestPacket {
 	public static byte[] makeTestPacket(){
 		ArrayList<CipherSuitPacket> CipherSuitList = new ArrayList();
 		
+		CipherSuitList.add(new CipherSuitPacket(CipherSuite.TLS_DH_anon_WITH_RC4_128_MD5 ));
+		CipherSuitList.add(new CipherSuitPacket(CipherSuite.TLS_KRB5_WITH_RC4_128_SHA));
 		CipherSuitList.add(new CipherSuitPacket(CipherSuite.TLS_KRB5_WITH_RC4_128_MD5));
-		CipherSuitList.add(new CipherSuitPacket(CipherSuite.TLS_KRB5_EXPORT_WITH_RC4_40_MD5 ));
-		CipherSuitList.add(new CipherSuitPacket(CipherSuite.TLS_KRB5_EXPORT_WITH_RC4_40_SHA));
+		CipherSuitList.add(new CipherSuitPacket(CipherSuite.TLS_KRB5_EXPORT_WITH_RC4_40_MD5));
+		CipherSuitList.add(new CipherSuitPacket(CipherSuite.TLS_KRB5_EXPORT_WITH_RC4_40_SHA ));
+		
 		CipherSuitList.add(new CipherSuitPacket(CipherSuite.TLS_PSK_WITH_RC4_128_SHA));
 		CipherSuitList.add(new CipherSuitPacket(CipherSuite.TLS_DHE_PSK_WITH_RC4_128_SHA));
 		
-		CipherSuitList.add(new CipherSuitPacket(CipherSuite.TLS_KRB5_WITH_RC4_128_SHA));
-		CipherSuitList.add(new CipherSuitPacket(CipherSuite.TLS_DH_anon_WITH_RC4_128_MD5));
 		CipherSuitList.add(new CipherSuitPacket(CipherSuite.TLS_ECDH_ECDSA_WITH_RC4_128_SHA));
 		CipherSuitList.add(new CipherSuitPacket(CipherSuite.TLS_ECDHE_ECDSA_WITH_RC4_128_SHA));
 		CipherSuitList.add(new CipherSuitPacket(CipherSuite.TLS_ECDH_RSA_WITH_RC4_128_SHA));
@@ -70,7 +71,12 @@ public class TestPacket {
 		
 		SSLClientHelloPacket SSL_client_hello = new SSLClientHelloPacket(cipher_suit_packet, extension_packet);
 		byte[] packet = SSL_client_hello.makeBytePacket();
-		
+		for(int i =0;i<packet.length;i++){
+			System.out.format("0x%2x ", packet[i]);
+			if(i % 10 == 0){
+				System.out.println();
+			}
+		}
 		return packet;
 	}
 }
