@@ -1,3 +1,4 @@
+package SSLPacket;
 
 public class CipherSuite {
 

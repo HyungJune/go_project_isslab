@@ -1,3 +1,5 @@
+package SSLPacket;
+
 import java.nio.ByteBuffer;
 
 public class ExtensionFormat {

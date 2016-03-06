@@ -1,3 +1,5 @@
+package SSLPacket;
+
 import java.nio.ByteBuffer;
 
 public class SSLClientHelloPacket {
@@ -25,7 +27,7 @@ public class SSLClientHelloPacket {
 	private ExtensionPacket[] extensions;// done
 	
 	private byte[] packet;
-	SSLClientHelloPacket(CipherSuitPacket[] ciphersuits, ExtensionPacket[] extensions){
+	public SSLClientHelloPacket(CipherSuitPacket[] ciphersuits, ExtensionPacket[] extensions){
 		this.contentType = 0x16;
 		
 		this.tlsVersion = new byte[2];
@@ -106,7 +108,7 @@ public class SSLClientHelloPacket {
 		this.packet = new byte[totalSize];
 	}
 	
-	byte[] makeBytePacket(){
+	public byte[] makeBytePacket(){
 		int i = 0;
 		/* set contentType */
 		this.packet[i++] = this.contentType;
@@ -168,61 +170,3 @@ public class SSLClientHelloPacket {
 	
 }
 
-class ExtensionPacket {
-	private byte[] format;
-	private byte[] length;
-	private byte[] contents;
-	private int totalSize;
-	private byte[] packet;
-	
-	ExtensionPacket(byte[] format, byte[] contents){
-		this.format = format;
-		this.contents = contents;
-		
-		//this.length = new byte[2];
-		this.length = ByteBuffer.allocate(2).putShort((short)contents.length).array();
-		this.totalSize = this.format.length + this.length.length
-				+ this.contents.length;
-		
-		this.packet = new byte[totalSize];
-		System.out.println("Extension Total Size : " + totalSize);
-		
-		int i = 0;
-		
-		/* set format */
-		i = SSLClientHelloPacket.copyByteByIndex(packet, format, i);
-		
-		/* set length */
-		i = SSLClientHelloPacket.copyByteByIndex(packet, length, i);
-		
-		/* set contents */
-		i = SSLClientHelloPacket.copyByteByIndex(packet, contents, i);
-	}
-	
-	int getTotalSize(){
-		return this.totalSize;
-	}
-	
-	byte[] getPacket(){
-		return this.packet;
-	}
-}
-
-class CipherSuitPacket{
-	private byte firstByte;
-	private byte lastByte;
-	private byte[] packet;
-	CipherSuitPacket(byte[] cipherSuit){
-		this.firstByte = cipherSuit[0];
-		this.lastByte = cipherSuit[1];
-		
-		this.packet = new byte[2];
-		
-		this.packet[0] = this.firstByte;
-		this.packet[1] = this.lastByte;
-	}
-	
-	byte[] getPacket(){
-		return this.packet;
-	}
-}
