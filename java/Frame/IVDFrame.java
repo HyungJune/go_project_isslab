@@ -4,26 +4,68 @@ import javax.swing.JTextPane;
 import java.awt.BorderLayout;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JMenu;
 import javax.swing.JTextField;
 import java.awt.GridLayout;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.RowSpec;
+
+import VAtool.IVDTool;
+
 import com.jgoodies.forms.factories.FormFactory;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
+
 import java.awt.FlowLayout;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 
-public class IVDFrame extends JFrame {
+import javax.swing.JLabel;
+
+public class IVDFrame extends JFrame{
 	private final JTextField textField = new JTextField();
 	private final JButton btnAnalyze = new JButton("analyze");
+	IVDTool ivd = new IVDTool();
+	
+    private JFileChooser jfc = new JFileChooser();
+
+	
+    public boolean fileSave()
+    {
+        File fileName;
+        JFileChooser fc = new JFileChooser();
+        int yn = fc.showSaveDialog(this);
+        
+        if(yn != JFileChooser.APPROVE_OPTION)
+        {
+             fileName = null;
+             return false;
+        }
+        
+        fileName = fc.getSelectedFile();
+        
+        
+        
+        return true;
+    
+    }
+	
+	
 	public IVDFrame(){
+		
+		
+		
+
+		setTitle("IVD Tool");
 		
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
@@ -51,18 +93,62 @@ public class IVDFrame extends JFrame {
 			public void focusGained(FocusEvent arg0) {
 			}
 		});
-		textField.setBounds(174, 199, 371, 31);
+		textField.setBounds(89, 44, 371, 31);
 		getContentPane().add(textField);
 		textField.setColumns(10);
+		
+		textField.addActionListener(new ActionListener() {
+
+		 
+		    public void actionPerformed(ActionEvent e) {
+		    	ivd.setHost(textField.getText());
+				ivd.defaultHandshake();
+				int input = JOptionPane.showConfirmDialog(null, "분석 결과를 xml파일로 내보내시겠습니까?", "결과창", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+				
+				if(input == JOptionPane.OK_OPTION)
+				{
+					
+					
+				    
+					fileSave();
+					
+					
+					
+				}
+				
+		    }
+		});
+		
+		
+		
 		btnAnalyze.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent arg0) {
+				ivd.setHost(textField.getText());
+				ivd.defaultHandshake();
+				int input = JOptionPane.showConfirmDialog(null, "분석 결과를 xml파일로 내보내시겠습니까?", "결과창", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+				
+				if(input == JOptionPane.OK_OPTION)
+				{
+					fileSave();
+				}
+				
 			}
 		});
-		btnAnalyze.setBounds(544, 199, 77, 31);
+		btnAnalyze.setBounds(472, 44, 77, 31);
 		getContentPane().add(btnAnalyze);
 		
-		this.setSize(800, 600);
+		JLabel lblTargetHost = new JLabel("Target Host");
+		lblTargetHost.setBounds(12, 52, 77, 15);
+		getContentPane().add(lblTargetHost);
+		
+		this.setSize(600,200);
 		this.setVisible(true);
 		
 	}
+
+
+
+
+
+	
 }
