@@ -12,6 +12,7 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 
 import javax.net.ssl.HandshakeCompletedEvent;
 import javax.net.ssl.HandshakeCompletedListener;
@@ -27,7 +28,10 @@ import org.jdom2.Element;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
-
+import SSLPacket.CipherSuite;
+import SSLPacket.SSLClientHelloPacket;
+import SSLPacket.ExtensionFormat;
+import SSLPacket.*;
 
 
 
@@ -299,15 +303,14 @@ public class IVDTool {
 		
 		
 	}
-	
+
 	public void heartbleadTest(){
 		Socket s;
 		InputStream in;
 		DataInputStream din;
 		OutputStream out;
 		boolean clientHelloDone = false;
-	
-		
+		byte[] test_packet = TestPacket.makeTestPacket();
 		try {
 			s = new Socket(host, port);
 			in = s.getInputStream();
@@ -316,7 +319,7 @@ public class IVDTool {
 			
 			System.out.println("--Handshake message--");
 			System.out.println("Client Hello...");
-			out.write(sslHello_origin);
+			out.write(test_packet);
 			
 			System.out.println("Waiting for Server Hello...");
 			boolean key = false;
