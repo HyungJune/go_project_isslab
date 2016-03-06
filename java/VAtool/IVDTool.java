@@ -22,16 +22,19 @@ import javax.net.ssl.SSLSocketFactory;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1Primitive;
 import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.output.Format;
+import org.jdom2.output.XMLOutputter;
 
 
 
 
 
 public class IVDTool {
+	
+	public static final int HANDSHAKE = 22;
+	public static final int ALERT = 21;
 	
 	private static class packet{
 		packetHeader pheader;
@@ -63,16 +66,15 @@ public class IVDTool {
 	
 	private String host;
 	private static int port;
-	
-	String ski;
-	String uki;
-	
-	
+	String filePath;
 	
 	public IVDTool(){
 		host = null;
 		port = 443;
+		filePath = null;
 	}
+	
+	public void setFilePath(String filePath){this.filePath = filePath;}
 	
 	public void setHost(String host){this.host = host;}
 	
@@ -83,10 +85,10 @@ public class IVDTool {
 		return asnInpuStream.readObject();
 	}
 	
-	
+	String ski, uki;
 	
 	public void defaultHandshake(){
-		
+
 		SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
 		System.out.println("Connecting... " + host + " : " + port);
 		try {
@@ -158,123 +160,13 @@ public class IVDTool {
 						System.out.println("443.https.tls.cipher_suite.name : "+ socket.getSession().getCipherSuite() );
 						System.out.println("443.https.tls.version : "+ socket.getSession().getProtocol() );
 						
-						
-						
-						
-						
-						
-						Document doc = new Document();  
-						
-						
-						Element InfoSet = new Element("InfoSet");
-						  
-						Element Info = new Element("Info");
-						
-						Element info_name1 = new Element("public_key");
-						Element info_name2 = new Element("authority_key_id");
-						Element info_name3 = new Element("basic_constraints");
-						Element info_name4 = new Element("certificate_policies");
-						Element info_name5 = new Element("extended_key_usage");
-						Element info_name6 = new Element("subject_key_id");
-						Element info_name7 = new Element("digital_signature");
-						Element info_name8 = new Element("key_encipherment");
-						Element info_name9 = new Element("dns_names");
-						Element info_name10 = new Element("issuer_dn");
-						Element info_name11 = new Element("serial_number");
-						Element info_name12 = new Element("signature_algorithm");
-						Element info_name13 = new Element("signature_algorithm_oid");
-						Element info_name14 = new Element("subject_dn");
-						Element info_name15 = new Element("validity_end");
-						Element info_name16 = new Element("validity_start");
-						Element info_name17 = new Element("version");
-						Element info_name18 = new Element("cipher_suite_name");
-						Element info_name19 = new Element("tls_version");
-						
-						
-						
-						InfoSet.addContent(Info);
-						Info.addContent(info_name1);
-						Info.addContent(info_name2);
-						Info.addContent(info_name3);
-						Info.addContent(info_name4);
-						Info.addContent(info_name5);
-						Info.addContent(info_name6);
-						Info.addContent(info_name7);
-						Info.addContent(info_name8);
-						Info.addContent(info_name9);
-						Info.addContent(info_name10);
-						Info.addContent(info_name11);
-						Info.addContent(info_name12);
-						Info.addContent(info_name13);
-						Info.addContent(info_name14);
-						Info.addContent(info_name15);
-						Info.addContent(info_name16);
-						Info.addContent(info_name17);
-						Info.addContent(info_name18);
-						Info.addContent(info_name19);
-						
-						info_name1.setText(x509cert.getPublicKey().toString());
-						info_name2.setText(uki.substring(5,45));
-						info_name3.setText(String.valueOf(x509cert.getBasicConstraints()));
-						info_name4.setText("null");
-						info_name5.setText(x509cert.getExtendedKeyUsage().toString());
-						info_name6.setText(ski.substring(1,41));
-						info_name7.setText(String.valueOf(x509cert.getKeyUsage()[0]));
-						info_name8.setText(String.valueOf(x509cert.getKeyUsage()[2]));
-						info_name9.setText(x509cert.getSubjectAlternativeNames().toString());
-						info_name10.setText(x509cert.getIssuerX500Principal().getName());
-						info_name11.setText(x509cert.getSerialNumber().toString());
-						info_name12.setText(x509cert.getSigAlgName().toString());
-						info_name13.setText(x509cert.getSigAlgOID().toString());
-						info_name14.setText(x509cert.getSubjectDN().getName());
-						info_name15.setText(x509cert.getNotBefore().toString());
-						info_name16.setText(x509cert.getNotAfter().toString());
-						info_name17.setText(String.valueOf(x509cert.getVersion()));
-						info_name18.setText(socket.getSession().getCipherSuite().toString());
-						info_name19.setText(socket.getSession().getProtocol().toString());
-						
-						doc.setRootElement(InfoSet);
-						
-						
-						
-						
-						 FileOutputStream out = new FileOutputStream("d:\\Info.xml"); 
-					      //xml 파일을 떨구기 위한 경로와 파일 이름 지정해 주기
-					      XMLOutputter serializer = new XMLOutputter();                 
-					                                                                    
-					      Format f = serializer.getFormat();                            
-					      f.setEncoding("UTF-8");
-					      //encoding 타입을 UTF-8 로 설정
-					      f.setIndent(" ");                                             
-					      f.setLineSeparator("\r\n");                                   
-					      f.setTextMode(Format.TextMode.TRIM);                          
-					      serializer.setFormat(f);                                      
-					                                                                    
-					      serializer.output(doc, out);                                  
-					      out.flush();                                                  
-					      out.close();    
-					      
-					      //String 으로 xml 출력
-					     // XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat().setEncoding("UTF-8")) ;
-					     // System.out.println(outputter.outputString(doc));
-						
-						
-						
-						
-						
-						
+						saveFile(dataParsing(x509cert, socket),  filePath); 
 						
 												
 					} catch (SSLPeerUnverifiedException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					} catch (CertificateParsingException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					} catch (FileNotFoundException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					} catch (IOException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
@@ -294,14 +186,127 @@ public class IVDTool {
 		}
 	}
 
+	public Document dataParsing(X509Certificate x509cert, SSLSocket socket){
+		Document doc = new Document();
+		Element InfoSet = new Element("InfoSet");
+		
+		Element Info = new Element("Info");
+		
+		Element info_name1 = new Element("public_key");
+		Element info_name2 = new Element("authority_key_id");
+		Element info_name3 = new Element("basic_constraints");
+		Element info_name4 = new Element("certificate_policies");
+		Element info_name5 = new Element("extended_key_usage");
+		Element info_name6 = new Element("subject_key_id");
+		Element info_name7 = new Element("digital_signature");
+		Element info_name8 = new Element("key_encipherment");
+		Element info_name9 = new Element("dns_names");
+		Element info_name10 = new Element("issuer_dn");
+		Element info_name11 = new Element("serial_number");
+		Element info_name12 = new Element("signature_algorithm");
+		Element info_name13 = new Element("signature_algorithm_oid");
+		Element info_name14 = new Element("subject_dn");
+		Element info_name15 = new Element("validity_end");
+		Element info_name16 = new Element("validity_start");
+		Element info_name17 = new Element("version");
+		Element info_name18 = new Element("cipher_suite_name");
+		Element info_name19 = new Element("tls_version");
+		
+		InfoSet.addContent(Info);
+		
+		Info.addContent(info_name1);
+		Info.addContent(info_name2);
+		Info.addContent(info_name3);
+		Info.addContent(info_name4);
+		Info.addContent(info_name5);
+		Info.addContent(info_name6);
+		Info.addContent(info_name7);
+		Info.addContent(info_name8);
+		Info.addContent(info_name9);
+		Info.addContent(info_name10);
+		Info.addContent(info_name11);
+		Info.addContent(info_name12);
+		Info.addContent(info_name13);
+		Info.addContent(info_name14);
+		Info.addContent(info_name15);
+		Info.addContent(info_name16);
+		Info.addContent(info_name17);
+		Info.addContent(info_name18);
+		Info.addContent(info_name19);
+		
+		info_name1.setText(x509cert.getPublicKey().toString());
+		info_name2.setText(uki.substring(5,45));
+		info_name3.setText(String.valueOf(x509cert.getBasicConstraints()));
+		info_name4.setText("null");
+		try {
+			info_name5.setText(x509cert.getExtendedKeyUsage().toString());
+		} catch (CertificateParsingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		info_name6.setText(ski.substring(1,41));
+		info_name7.setText(String.valueOf(x509cert.getKeyUsage()[0]));
+		info_name8.setText(String.valueOf(x509cert.getKeyUsage()[2]));
+		try {
+			info_name9.setText(x509cert.getSubjectAlternativeNames().toString());
+		} catch (CertificateParsingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		info_name10.setText(x509cert.getIssuerX500Principal().getName());
+		info_name11.setText(x509cert.getSerialNumber().toString());
+		info_name12.setText(x509cert.getSigAlgName().toString());
+		info_name13.setText(x509cert.getSigAlgOID().toString());
+		info_name14.setText(x509cert.getSubjectDN().getName());
+		info_name15.setText(x509cert.getNotBefore().toString());
+		info_name16.setText(x509cert.getNotAfter().toString());
+		info_name17.setText(String.valueOf(x509cert.getVersion()));
+		info_name18.setText(socket.getSession().getCipherSuite().toString());
+		info_name19.setText(socket.getSession().getProtocol().toString());
+		
+		doc.setRootElement(InfoSet);
+		
+		return doc;
+	}
+	
+	public void saveFile(Document doc, String filePath){
+		FileOutputStream out;
+		try {
+			out = new FileOutputStream("info.xml");
+			XMLOutputter serializer = new XMLOutputter();
+			
+			Format f = serializer.getFormat();
+			f.setEncoding("UTF-8");
+			f.setIndent(" ");
+			f.setLineSeparator("\r\n");                                   
+		      f.setTextMode(Format.TextMode.TRIM);                          
+		      serializer.setFormat(f);                                      
+		                                                                    
+		      serializer.output(doc, out);   
+		      out.flush();                                                  
+		      out.close();  
+		      
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		                               
+	    
+		
+		
+	}
+	
 	public void heartbleadTest(){
 		Socket s;
 		InputStream in;
 		DataInputStream din;
 		OutputStream out;
-		boolean serverHello = false;
-		
-		int idx = 0;
+		boolean clientHelloDone = false;
+	
 		
 		try {
 			s = new Socket(host, port);
@@ -314,22 +319,40 @@ public class IVDTool {
 			out.write(sslHello_origin);
 			
 			System.out.println("Waiting for Server Hello...");
-			while(true){
+			boolean key = false;
+			while(!key){
 				packet pkt = readPacket(din);
-				System.out.println("Type:" + pkt.pheader.type + " Ver: " + pkt.pheader.ver + " Len: " + pkt.pheader.len);
+				System.out.println("Handshake: Type:" + pkt.pheader.type + " Ver: " + pkt.pheader.ver + " Len: " + pkt.pheader.len);
 				
-				
-				if(pkt.pheader.type == 22 && pkt.ppayload.payload[0] == 0x2){
-					parseServerHello(pkt);
+				switch(pkt.pheader.type){
+				case HANDSHAKE:
+					if(pkt.ppayload.payload[0] == 0x02){
+						parseServerHello(pkt);
+					}
+					if(pkt.ppayload.payload[0] == 0x0E){
+						key = true;
+						clientHelloDone = true;
+					}
+					break;
+					
+				case ALERT:
+					System.out.println("Alert Message level: "+pkt.ppayload.payload[0]+" Description: "+pkt.ppayload.payload[1]);
+					key = true;
+					break;
+						
+				default:
+					key = true;
+						break;
 				}
-				if(pkt.pheader.type == 22 && pkt.ppayload.payload[0] == 0xE) break;
+				
 			}
 			
+			if(clientHelloDone){
 			while(true){
 				System.out.println("headtbeat...");
 				out.write(sslHB);
 				packet hpkt = readPacket(din);
-				System.out.println("Type:" + hpkt.pheader.type + " Ver: " + hpkt.pheader.ver + " Len: " + hpkt.pheader.len);
+				System.out.println("Heartbeat: Type:" + hpkt.pheader.type + " Ver: " + hpkt.pheader.ver + " Len: " + hpkt.pheader.len);
 				
 				System.out.print("Heartbeat payload: ");
 				for(int i=0;i<hpkt.ppayload.payload.length;i++)
@@ -353,7 +376,7 @@ public class IVDTool {
 				}
 			}
 			
-			
+			}
 			
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
@@ -401,12 +424,18 @@ public class IVDTool {
 	public void parseServerHello(packet pkt){
 		
 		System.out.println("Content Type: " +pkt.ppayload.payload[0]);
-		System.out.println("Cipher Suite: " + Integer.toHexString(pkt.ppayload.payload[39])+" " + Integer.toHexString(pkt.ppayload.payload[40]));
+		int ciphersuiteIdx = pkt.ppayload.payload[38]+38+1;
+		System.out.println("ciphersuiteIdx: "+ciphersuiteIdx);
+		System.out.println("Cipher Suite: " + Integer.toHexString(0xff & pkt.ppayload.payload[ciphersuiteIdx])+" " + Integer.toHexString(0xff & pkt.ppayload.payload[ciphersuiteIdx+1]));
+/*		for(int i=0;i<pkt.ppayload.payload.length;i++)
+			System.out.print("payload["+i+"]: "+pkt.ppayload.payload[i]+"\t");
+		
+		System.out.println();*/
 	}
 	
 	private static byte sslHello_origin[] = new byte[] {
-		0x16, 0x03, 0x03, 0x00, (byte) 0x9a, // Content type = 16: 22 (handshake message); Version = 03 03; Packet length = 008e:142 | 009a: 154
-		0x01, 0x00, 0x00, (byte) 0x96, //Message type = 01 (client hello); Length =    00008a: 138         |00 00 96 : 150
+		0x16, 0x03, 0x03, 0x00, (byte) 0x9a, // Content type = 16: 22 (handshake message); Version = 03 03; Packet length = 008e:142 | 009a: 154 | 004e: 78
+		0x01, 0x00, 0x00, (byte) 0x96, //Message type = 01 (client hello); Length =    00008a: 138         |00 00 96 : 150      | 004a: 74        
 		0x03, 0x03, //Client version = 03 03 (TLS 1.2)
 		
 		0x53, 0x43, 0x5b, (byte) 0x90, (byte) 0x9d, (byte)0x9b, 0x72, 0x0b, (byte) 0xbc,  0x0c, (byte) 0xbc, 0x2b, (byte) 0x92, (byte) 0xa8, 0x48, (byte) 0x97, (byte) 0xcf, 
@@ -414,7 +443,7 @@ public class IVDTool {
 		0x04, 0x33, (byte) 0xd4, (byte) 0xde,//Random 32B
 		
 		0x00, //Session id = 00
-		0x00, 0x1a, //Cipher suite length 000d:14        001a: 26
+		0x00, 0x1a, //Cipher suite length 000e:14        001a: 26
 		
 		0x00, 0x18,
 		0x00, 0x20,
@@ -423,19 +452,18 @@ public class IVDTool {
 		0x00, 0x28,
 		0x00, (byte) 0x8a,
 		0x00, (byte) 0x8e,
-		(byte) 0xc0, 0x02,
-		(byte) 0xc0, 0x07,
-		(byte) 0xc0, 0x0c,
-		(byte) 0xc0, 0x11,
-		(byte) 0xc0, 0x16,
-		(byte) 0xc0, 0x33,
-		
+		CipherSuite.TLS_ECDH_ECDSA_WITH_RC4_128_SHA[0], CipherSuite.TLS_ECDH_ECDSA_WITH_RC4_128_SHA[1],
+		CipherSuite.TLS_ECDHE_ECDSA_WITH_RC4_128_SHA[0], CipherSuite.TLS_ECDHE_ECDSA_WITH_RC4_128_SHA[1], 
+		CipherSuite.TLS_ECDH_RSA_WITH_RC4_128_SHA[0], CipherSuite.TLS_ECDH_RSA_WITH_RC4_128_SHA[1], 
+		CipherSuite.TLS_ECDHE_RSA_WITH_RC4_128_SHA[0], CipherSuite.TLS_ECDHE_RSA_WITH_RC4_128_SHA[1], 
+		CipherSuite.TLS_ECDH_anon_WITH_RC4_128_SHA[0], CipherSuite.TLS_ECDH_anon_WITH_RC4_128_SHA[1], 
+		CipherSuite.TLS_ECDHE_PSK_WITH_RC4_128_SHA[0], CipherSuite.TLS_ECDHE_PSK_WITH_RC4_128_SHA[1], 
 		
 		
 		0x01, //Compression methods length
 		0x00, //Compression method 0 : no compression = 0
-		0x00, 0x53, //Extension length = 53 : 83
-		
+		0x00, 0x53, //Extension length = 0x53 : 83 |  0x13: 19 
+	
 		0x00, 0x0b, //ec_point_format
 		0x00, 0x04, //length
 		0x03, 
@@ -471,7 +499,7 @@ public class IVDTool {
 		0x00, 0x0f,  
 		0x00, 0x10, 
 		0x00, 0x11,	//52
-		
+	
 		0x00, 0x23, //SessionTicket TLS	RFC4507
 		0x00, 0x00,		//length 0
 		

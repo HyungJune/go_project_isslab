@@ -38,7 +38,7 @@ public class IVDFrame extends JFrame{
 	
     private JFileChooser jfc = new JFileChooser();
 
-	
+	/*
     public boolean fileSave()
     {
         File fileName;
@@ -53,11 +53,9 @@ public class IVDFrame extends JFrame{
         
         fileName = fc.getSelectedFile();
         
-        
-        
         return true;
     
-    }
+    }*/
 	
 	
 	public IVDFrame(){
@@ -103,19 +101,7 @@ public class IVDFrame extends JFrame{
 		    public void actionPerformed(ActionEvent e) {
 		    	ivd.setHost(textField.getText());
 				ivd.defaultHandshake();
-				int input = JOptionPane.showConfirmDialog(null, "분석 결과를 xml파일로 내보내시겠습니까?", "결과창", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-				
-				if(input == JOptionPane.OK_OPTION)
-				{
-					
-					
-				    
-					fileSave();
-					
-					
-					
-				}
-				
+				JOptionPane.showMessageDialog(null, "Complete!");
 		    }
 		});
 		
@@ -125,12 +111,7 @@ public class IVDFrame extends JFrame{
 			public void mouseClicked(MouseEvent arg0) {
 				ivd.setHost(textField.getText());
 				ivd.defaultHandshake();
-				int input = JOptionPane.showConfirmDialog(null, "분석 결과를 xml파일로 내보내시겠습니까?", "결과창", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-				
-				if(input == JOptionPane.OK_OPTION)
-				{
-					fileSave();
-				}
+				JOptionPane.showMessageDialog(null, "Complete!");
 				
 			}
 		});
