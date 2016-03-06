@@ -8,13 +8,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JMenu;
 import javax.swing.JTextField;
 import java.awt.GridLayout;
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.layout.ColumnSpec;
-import com.jgoodies.forms.layout.RowSpec;
 
 import VAtool.IVDTool;
 
-import com.jgoodies.forms.factories.FormFactory;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 
