@@ -5,6 +5,7 @@ import java.security.NoSuchAlgorithmException;
 import javax.swing.JOptionPane;
 
 import Frame.IVDFrame;
+import VAtool.CipherSuite;
 import VAtool.IVDTool;
 
 public class MAIN {
@@ -19,16 +20,17 @@ public class MAIN {
 		// TODO Auto-generated method stub
 		//System.setProperty("jsse.enableSNIExtension", "false");
 		IVDFrame frame = new IVDFrame();
-		//String host = null;
-		//IVDTool ivd = new IVDTool();
+/*		String host = null;
+		IVDTool ivd = new IVDTool();
 		
-		
-		
-		//host = JOptionPane.showInputDialog("Enter the host name:");
-		//ivd.setHost(host);
-		//ivd.heartbleadTest();
-		//ivd.defaultHandshake();
-		
+		host = JOptionPane.showInputDialog("Enter the host name:");
+		if(host!=null){
+			ivd.setHost(host);
+			ivd.heartbleadTest();
+			//ivd.defaultHandshake();
+		}
+*/
+		System.out.println("END");
 	}
 
 }

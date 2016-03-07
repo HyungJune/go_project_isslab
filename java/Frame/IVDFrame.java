@@ -1,29 +1,28 @@
 package Frame;
 import javax.swing.JFrame;
-import javax.swing.JTextPane;
-import java.awt.BorderLayout;
+
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JMenu;
 import javax.swing.JTextField;
-import java.awt.GridLayout;
+
 
 import VAtool.IVDTool;
+
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 
-import java.awt.FlowLayout;
+
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
+
 
 import javax.swing.JLabel;
 
@@ -55,9 +54,7 @@ public class IVDFrame extends JFrame{
 	
 	
 	public IVDFrame(){
-		
-		
-		
+			
 
 		setTitle("IVD Tool");
 		
@@ -96,7 +93,7 @@ public class IVDFrame extends JFrame{
 		 
 		    public void actionPerformed(ActionEvent e) {
 		    	ivd.setHost(textField.getText());
-				ivd.defaultHandshake();
+		    	ivd.start();		    	
 				JOptionPane.showMessageDialog(null, "Complete!");
 		    }
 		});
@@ -106,7 +103,7 @@ public class IVDFrame extends JFrame{
 		btnAnalyze.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent arg0) {
 				ivd.setHost(textField.getText());
-				ivd.defaultHandshake();
+				ivd.start();
 				JOptionPane.showMessageDialog(null, "Complete!");
 				
 			}
@@ -120,6 +117,8 @@ public class IVDFrame extends JFrame{
 		
 		this.setSize(600,200);
 		this.setVisible(true);
+		
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 	}
 
