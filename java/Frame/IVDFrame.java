@@ -25,12 +25,14 @@ import java.awt.event.MouseEvent;
 
 
 import javax.swing.JLabel;
+import javax.swing.JProgressBar;
 
 public class IVDFrame extends JFrame{
 	private final JTextField textField = new JTextField();
 	private final JButton btnAnalyze = new JButton("analyze");
 	IVDTool ivd = new IVDTool();
-	
+	public JProgressBar progressBar;
+	JLabel lblNewLabel;
     private JFileChooser jfc = new JFileChooser();
 
 	/*
@@ -61,20 +63,14 @@ public class IVDFrame extends JFrame{
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
 		
-		JMenu mnNewMenu = new JMenu("File");
-		menuBar.add(mnNewMenu);
-		
-		JMenuItem mntmNewMenuItem = new JMenuItem("Hi");
-		mnNewMenu.add(mntmNewMenuItem);
-		
-		JMenuItem mntmNewMenuItem_1 = new JMenuItem("Hello");
-		mnNewMenu.add(mntmNewMenuItem_1);
-		
 		JMenu mnNewMenu_1 = new JMenu("Help");
 		menuBar.add(mnNewMenu_1);
 		
-		JMenuItem mntmAboutUs = new JMenuItem("About us");
+		JMenuItem mntmAboutUs = new JMenuItem("How to Use");
 		mnNewMenu_1.add(mntmAboutUs);
+		
+		JMenuItem mntmNewMenuItem = new JMenuItem("About us");
+		mnNewMenu_1.add(mntmNewMenuItem);
 		getContentPane().setLayout(null);
 		textField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -84,6 +80,7 @@ public class IVDFrame extends JFrame{
 			public void focusGained(FocusEvent arg0) {
 			}
 		});
+		
 		textField.setBounds(89, 44, 371, 31);
 		getContentPane().add(textField);
 		textField.setColumns(10);
@@ -93,8 +90,17 @@ public class IVDFrame extends JFrame{
 		 
 		    public void actionPerformed(ActionEvent e) {
 		    	ivd.setHost(textField.getText());
-		    	ivd.start();		    	
-				JOptionPane.showMessageDialog(null, "Complete!");
+		    	go();
+		    	ivd.defaultHandshake();
+		    	while(true){
+		    		
+		    		if(ivd.socket.isBound()){
+		    			ivd.heartbleadTest();
+		    			break;
+		    		}
+		    	}
+	//	    	ivd.start(progressBar, lblNewLabel);		
+			   	JOptionPane.showMessageDialog(null, "Complete!");
 		    }
 		});
 		
@@ -103,7 +109,16 @@ public class IVDFrame extends JFrame{
 		btnAnalyze.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent arg0) {
 				ivd.setHost(textField.getText());
-				ivd.start();
+				go();
+		    	ivd.defaultHandshake();
+		    	while(true){
+		    		
+		    		if(ivd.socket.isBound()){
+		    			ivd.heartbleadTest();
+		    			break;
+		    		}
+		    	}
+			//	ivd.start(progressBar, lblNewLabel);
 				JOptionPane.showMessageDialog(null, "Complete!");
 				
 			}
@@ -115,16 +130,40 @@ public class IVDFrame extends JFrame{
 		lblTargetHost.setBounds(12, 52, 77, 15);
 		getContentPane().add(lblTargetHost);
 		
-		this.setSize(600,200);
+		progressBar = new JProgressBar();
+		progressBar.setBounds(89, 127, 371, 22);
+		progressBar.setMinimum(0);
+		progressBar.setMaximum(100);
+		progressBar.setValue(0);
+		getContentPane().add(progressBar);
+		
+		lblNewLabel = new JLabel("");
+		lblNewLabel.setBounds(468, 127, 57, 22);
+		getContentPane().add(lblNewLabel);
+					
+		this.setSize(600,241);
 		this.setVisible(true);
 		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
+
 	}
-
-
-
-
-
-	
+	public void go(){
+		
+		for(int i=0;i<=100;i++){
+			
+			
+			try {
+				progressBar.setValue(i);
+				lblNewLabel.setText(i+"%");
+				System.out.println("i: "+i);
+				Thread.sleep(50);
+				
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+	}
 }
