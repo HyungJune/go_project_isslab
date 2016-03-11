@@ -10,7 +10,9 @@ import javax.swing.JTextField;
 
 import VAtool.IVDTool;
 
-
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 
@@ -22,7 +24,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
@@ -95,7 +100,14 @@ public class IVDFrame extends JFrame{
 		    	while(true){
 		    		
 		    		if(ivd.socket.isBound()){
-		    			ivd.heartbleadTest();
+		    			try {
+							ivd.heartbleadTest();
+						} catch (InvalidKeyException | UnsupportedEncodingException | NoSuchAlgorithmException
+								| NoSuchPaddingException | InvalidAlgorithmParameterException
+								| IllegalBlockSizeException | BadPaddingException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
 		    			break;
 		    		}
 		    	}
@@ -114,7 +126,14 @@ public class IVDFrame extends JFrame{
 		    	while(true){
 		    		
 		    		if(ivd.socket.isBound()){
-		    			ivd.heartbleadTest();
+		    			try {
+							ivd.heartbleadTest();
+						} catch (InvalidKeyException | UnsupportedEncodingException | NoSuchAlgorithmException
+								| NoSuchPaddingException | InvalidAlgorithmParameterException
+								| IllegalBlockSizeException | BadPaddingException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 		    			break;
 		    		}
 		    	}
