@@ -10,7 +10,7 @@ public class CipherSuite {
 	public CipherSuite() {
 		rc4Map = new HashMap<String, String>();
 		initRc4();
-		
+		initSloth();
 		
 		
 	}

@@ -10,9 +10,7 @@ import javax.swing.JTextField;
 
 import VAtool.IVDTool;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
+
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 
@@ -24,40 +22,17 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.UnsupportedEncodingException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
+
 
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 
 public class IVDFrame extends JFrame{
 	private final JTextField textField = new JTextField();
-	private final JButton btnAnalyze = new JButton("analyze");
+	private final JButton btnAnalyze = new JButton("collect");
 	IVDTool ivd = new IVDTool();
 	public JProgressBar progressBar;
 	JLabel lblNewLabel;
-    private JFileChooser jfc = new JFileChooser();
-
-	/*
-    public boolean fileSave()
-    {
-        File fileName;
-        JFileChooser fc = new JFileChooser();
-        int yn = fc.showSaveDialog(this);
-        
-        if(yn != JFileChooser.APPROVE_OPTION)
-        {
-             fileName = null;
-             return false;
-        }
-        
-        fileName = fc.getSelectedFile();
-        
-        return true;
-    
-    }*/
 	
 	
 	public IVDFrame(){
@@ -71,11 +46,11 @@ public class IVDFrame extends JFrame{
 		JMenu mnNewMenu_1 = new JMenu("Help");
 		menuBar.add(mnNewMenu_1);
 		
-		JMenuItem mntmAboutUs = new JMenuItem("How to Use");
-		mnNewMenu_1.add(mntmAboutUs);
+		JMenuItem mntmHowToUse = new JMenuItem("How to Use");
+		mnNewMenu_1.add(mntmHowToUse);
 		
-		JMenuItem mntmNewMenuItem = new JMenuItem("About us");
-		mnNewMenu_1.add(mntmNewMenuItem);
+		JMenuItem mntmAboutUs = new JMenuItem("About us");
+		mnNewMenu_1.add(mntmAboutUs);
 		getContentPane().setLayout(null);
 		textField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -92,56 +67,28 @@ public class IVDFrame extends JFrame{
 		
 		textField.addActionListener(new ActionListener() {
 
-		 
-		    public void actionPerformed(ActionEvent e) {
-		    	ivd.setHost(textField.getText());
-		    	go();
-		    	ivd.defaultHandshake();
-		    	while(true){
-		    		
-		    		if(ivd.socket.isBound()){
-		    			try {
-							ivd.heartbleadTest();
-						} catch (InvalidKeyException | UnsupportedEncodingException | NoSuchAlgorithmException
-								| NoSuchPaddingException | InvalidAlgorithmParameterException
-								| IllegalBlockSizeException | BadPaddingException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
-		    			break;
-		    		}
-		    	}
-	//	    	ivd.start(progressBar, lblNewLabel);		
-			   	JOptionPane.showMessageDialog(null, "Complete!");
-		    }
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+			
+				start();
+			}
+
+
 		});
 		
-		
-		
+
 		btnAnalyze.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent arg0) {
-				ivd.setHost(textField.getText());
-				go();
-		    	ivd.defaultHandshake();
-		    	while(true){
-		    		
-		    		if(ivd.socket.isBound()){
-		    			try {
-							ivd.heartbleadTest();
-						} catch (InvalidKeyException | UnsupportedEncodingException | NoSuchAlgorithmException
-								| NoSuchPaddingException | InvalidAlgorithmParameterException
-								| IllegalBlockSizeException | BadPaddingException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-		    			break;
-		    		}
-		    	}
-			//	ivd.start(progressBar, lblNewLabel);
-				JOptionPane.showMessageDialog(null, "Complete!");
+	
+				start();
 				
 			}
 		});
+		
+	
+		
+		btnAnalyze.setSize(50,50);
 		btnAnalyze.setBounds(472, 44, 77, 31);
 		getContentPane().add(btnAnalyze);
 		
@@ -163,26 +110,64 @@ public class IVDFrame extends JFrame{
 		this.setSize(600,241);
 		this.setVisible(true);
 		
+		go();
+		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 
 	}
-	public void go(){
+	
+	public void start(){
+		String input = new String(textField.getText());
+		if(!input.contains(".")){
+			JOptionPane.showMessageDialog(null, "Invalid Input Format");
+			return;
+		}
 		
+		ivd.setHost(textField.getText());
+	  
+    	ivd.heartbleadTest();
+
+		JOptionPane.showMessageDialog(null, "Complete!");
+	}
+	
+	public void start1(){
+		String input = new String(textField.getText());
+		if(!input.contains(".")){
+			JOptionPane.showMessageDialog(null, "Invalid Input Format");
+			return;
+		}
+		
+		ivd.setHost(textField.getText());
+	
+    	ivd.defaultHandshake();
+    	while(true){
+    		
+    		if(ivd.socket.isBound()){
+    			ivd.heartbleadTest();
+    			break;
+    		}
+    	}
+	//	ivd.start(progressBar, lblNewLabel);
+		JOptionPane.showMessageDialog(null, "Complete!");
+	}
+	
+	public void go(){
+		/*
 		for(int i=0;i<=100;i++){
 			
-			
-			try {
 				progressBar.setValue(i);
 				lblNewLabel.setText(i+"%");
 				System.out.println("i: "+i);
-				Thread.sleep(50);
-				
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 			
+					try {
+						Thread.sleep(50);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+						
 		}
+		*/
 	}
 }

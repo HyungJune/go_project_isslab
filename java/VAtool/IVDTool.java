@@ -6,21 +6,15 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import javax.net.ssl.HandshakeCompletedEvent;
 import javax.net.ssl.HandshakeCompletedListener;
+import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
@@ -57,21 +51,6 @@ public class IVDTool {
 		info = new Info();
 
 	}
-
-	public void start(JProgressBar progressBar, JLabel label) throws InvalidKeyException, UnsupportedEncodingException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
-
-		this.defaultHandshake();
-
-		while (true) {
-			if (socket.isClosed()) {
-				this.heartbleadTest();
-				break;
-			}
-		}
-		System.out.println("Real END!");
-	}
-
-	
 	
 	public void setHost(String host) {
 		this.host = host;
@@ -92,10 +71,23 @@ public class IVDTool {
 		SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory
 				.getDefault();
 		System.out.println("Connecting... " + host + " : " + port);
+		
 		try {
 			socket = (SSLSocket) factory.createSocket(host, port);
-
+		} catch (UnknownHostException e2) {
+			// TODO Auto-generated catch block
+			JOptionPane.showMessageDialog(null, "Unknown Host Exception");
+			e2.printStackTrace();
+		} catch (IOException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		
+		try {	
+		
+		
 			String[] suites = socket.getSupportedCipherSuites();
+	//		SSLParameters sp = socket.getSSLParameters();
 
 			socket.setEnabledCipherSuites(suites);
 			socket.addHandshakeCompletedListener(new HandshakeCompletedListener() {
@@ -237,12 +229,12 @@ public class IVDTool {
 		info.setInfo(x509cert, uki, ski, tlsvul, socket, host);
 	}
 
-	public void saveFile() throws InvalidKeyException, UnsupportedEncodingException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
+	public void saveFile() {
 		info.saveFile();
 
 	}
 
-	public void heartbleadTest() throws InvalidKeyException, UnsupportedEncodingException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
+	public void heartbleadTest() {
 		Socket s;
 		InputStream in;
 		DataInputStream din;
@@ -253,6 +245,7 @@ public class IVDTool {
 
 		try {
 			s = new Socket(host, port);
+			
 			in = s.getInputStream();
 			din = new DataInputStream(in);
 			out = s.getOutputStream();
@@ -357,7 +350,7 @@ public class IVDTool {
 
 		// dataParsing(tlsvul);
 
-		System.out.println("어서와 여기가 마지막이야.");
+
 		dataParsing();
 		saveFile();
 
@@ -373,23 +366,13 @@ public class IVDTool {
 
 	}
 
-	private static byte sslHB[] = new byte[] { 0x18, 0x03, 0x03,
-			0x00,
-			0x19, // content type: 18: 24, version: 0303 TLS1.2, length: 0019:
-					// 25
-			0x01, // Heartbeat MessageType: request
-			0x00,
-			0x06, // payload_length: 0006
+	private static byte sslHB[] = new byte[] { 
+			0x18, 0x03, 0x03, 	// content type: 18: 24, version: 0303 TLS1.2, 
+			0x00, 0x19,		 		//length: 0019: 25
+			0x01, 					// Heartbeat MessageType: request
+			0x00, 0x06,			 	// payload_length: 0006
 			0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 // The
-																				// padding.Len
-																				// MUST
-																				// be
-																				// at
-																				// least
-																				// 16:
-																				// default
-																				// 16.
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 // The padding.Len MUST be  at least 16: default 16.
 	};
 
 }

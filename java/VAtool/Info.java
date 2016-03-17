@@ -1,20 +1,11 @@
 package VAtool;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import javax.net.ssl.SSLSocket;
 
 import org.jdom2.Document;
@@ -202,9 +193,8 @@ public class Info {
 		Document doc = new Document();
 		doc.setRootElement(InfoSet);
 		FileOutputStream out;
-		FileInputStream in;
 		try {
-			out = new FileOutputStream("./info");
+			out = new FileOutputStream("./info.ivd");
 			XMLOutputter serializer = new XMLOutputter();
 
 			Format f = serializer.getFormat();
@@ -217,40 +207,12 @@ public class Info {
 			serializer.output(doc, out);
 			out.flush();
 			out.close();
-			
-			in = new FileInputStream("./info");
-			int size = in.available();
-			byte[] buf = new byte[size];
-			int readCount = in.read(buf);
-			String textContents = new String(buf, 0, size);
-						
-			String encodedString = AES.encrypt(textContents);
-			
-			
-			out = new FileOutputStream("./info");
-			out.write(encodedString.getBytes());
-			in.close();
-		
 
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvalidKeyException e){
-			e.printStackTrace();
-		}catch (NoSuchAlgorithmException e){
-			e.printStackTrace();
-		}catch (NoSuchPaddingException e){
-			e.printStackTrace();
-		}catch(InvalidAlgorithmParameterException e){
-			e.printStackTrace();
-		}catch(IllegalBlockSizeException e){
-			e.printStackTrace();
-		}catch(BadPaddingException e){
-			e.printStackTrace();
-		}catch(Exception e){
 			e.printStackTrace();
 		}
 	}
