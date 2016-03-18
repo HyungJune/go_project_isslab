@@ -3,8 +3,12 @@ package VAtool;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 
 import javax.net.ssl.SSLSocket;
 import javax.security.cert.CertificateParsingException;
@@ -13,10 +17,9 @@ import org.jdom2.Element;
 import org.json.simple.JSONObject;
 
 public class JSONInfo {
-	private HashMap<String, String> map = new HashMap<String, String>();
-	
+	private LinkedHashMap<String, String> map = new LinkedHashMap();	
 	public JSONInfo(X509Certificate x509cert, String uki, String ski, TLSVulnerability tlsvul, SSLSocket socket, String host){
-		map.put("public_key", x509cert.getPublicKey().toString());
+		map.put("public_key_parameter", x509cert.getPublicKey().toString());
 		map.put("authority_key_id", uki.substring(5,45));
 		map.put("basic_constraints", String.valueOf(x509cert.getBasicConstraints()));
 		map.put("certificate_policies", null);
@@ -55,17 +58,23 @@ public class JSONInfo {
 		map.put("slothLevel", tlsvul.sloth.level);
 		map.put("slothDesc", tlsvul.sloth.description);
 		map.put("targetServer", host);
+		
+		//////////////////////////////////////////////////
+		String delims = "[\n]";
+		String[] public_key_parse =  x509cert.getPublicKey().toString().split(delims);
+		String[] public_key_info = public_key_parse[0].split("[ ]");
+		String public_key = public_key_info[1] + " " + public_key_info[4] + " " + public_key_info[5];
+		System.out.println(public_key);
+		
+		map.put("Public key", public_key);
 	}
 	
 	public void saveFile(){
 		JSONObject obj = new JSONObject();
-		Iterator<String> keys = map.keySet().iterator();
+		Set<String> keys = map.keySet();
 		System.out.println("---------------------Test JSON -------------");
-		while(keys.hasNext()){
-			String key = keys.next();
-			obj.put(key, map.get(key));
-		}
-		
+		obj.putAll(map);
+
 		try{
 			FileWriter file = new FileWriter("./info.json");
 			file.write(obj.toJSONString());
