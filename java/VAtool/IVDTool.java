@@ -39,7 +39,6 @@ public class IVDTool {
 	TLSVulnerability tlsvul;
 
 	Info info;
-	JSONInfo json_info;
 
 	public IVDTool() {
 		host = null;
@@ -52,7 +51,7 @@ public class IVDTool {
 		info = new Info();
 
 	}
-
+	
 	public void setHost(String host) {
 		this.host = host;
 	}
@@ -72,7 +71,7 @@ public class IVDTool {
 		SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory
 				.getDefault();
 		System.out.println("Connecting... " + host + " : " + port);
-
+		
 		try {
 			socket = (SSLSocket) factory.createSocket(host, port);
 		} catch (UnknownHostException e2) {
@@ -83,10 +82,10 @@ public class IVDTool {
 			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		}
-
-		try {
-
-
+		
+		try {	
+		
+		
 			String[] suites = socket.getSupportedCipherSuites();
 	//		SSLParameters sp = socket.getSSLParameters();
 
@@ -227,12 +226,10 @@ public class IVDTool {
 	}
 
 	public void dataParsing() {
-		json_info = new JSONInfo(x509cert, uki, ski, tlsvul, socket, host);
 		info.setInfo(x509cert, uki, ski, tlsvul, socket, host);
 	}
 
 	public void saveFile() {
-		json_info.saveFile();
 		info.saveFile();
 
 	}
@@ -242,101 +239,72 @@ public class IVDTool {
 		InputStream in;
 		DataInputStream din;
 		OutputStream out;
-
+		byte[] headpayload = new byte[9];
+		
 		try {
 			socket = new Socket(host, port);
 			in = socket.getInputStream();
 			din = new DataInputStream(in);
 			out = socket.getOutputStream();
-
+			
 			System.out.println("--Handshake message--");
 			System.out.println("Client Hello... ---> " +host);
 			out.write(Packet.sslv2);
-
+			
 			System.out.println("Waiting for Server Hello...");
 			boolean key = false;
-
-			byte[] onebyte = new byte[1];
+			
+			
 			int bytelen = 0;
-			din.readFully(onebyte);
-
-			System.out.println("header["+0+"]: "+Integer.toHexString(0xff & onebyte[0]));
+			din.readFully(headpayload);
+			
+//			System.out.println("header["+0+"]: "+Integer.toHexString(0xff & onebyte[0]));
 			byte[] firstlen = new byte[1];
-			firstlen[0] = (byte) (onebyte[0]&0x3f);
-			bytelen = (onebyte[0]&0x80) == 0x80 ? 2 : 3;
+			firstlen[0] = (byte) (headpayload[0]&0x3f);
+			bytelen = (headpayload[0]&0x80) == 0x80 ? 2 : 3;
+			
 			switch(bytelen){
 			case 2:
-				byte[] head = new byte[8];
-				din.readFully(head);
-				byte[] header = new byte[9];
-				header[0] = firstlen[0];
-				header[1] = head[0];
-				header[2] = head[1];
-				header[3] = head[2];
-				header[4] = head[3];
-				header[5] = head[4];
-				header[6] = head[5];
-				header[7] = head[6];
-				header[8] = head[7];
-				for(int i=0;i<header.length;i++)
-					System.out.println("-----header["+i+"]: "+Integer.toHexString(0xff & header[i]));
-				ByteBuffer bb = ByteBuffer.wrap(header);
+							
+				headpayload[0] = firstlen[0];
+				
+				for(int i=0;i<headpayload.length;i++)
+					System.out.println("-----header["+i+"]: "+Integer.toHexString(0xff & headpayload[i]));
+				ByteBuffer bb = ByteBuffer.wrap(headpayload);
 				int payloadlen  = bb.getShort();
 				int HandshakeMsgType = bb.get();
 				int sessionIDhit = bb.get();
 				int certificatetype = bb.get();
 				int version = bb.getShort();
 				int certificatelen = bb.getShort();
-
-
+				
+				
 				break;
 			case 3:
 				//padding...
 				JOptionPane.showMessageDialog(null, "Padding");
 				break;
+				
+			} 
 
-			}
-
-			while (!key) {
-				Packet pkt = Packet.readPacket(din);
-				System.out.println("Handshake: Type:" + pkt.pheader.type
-						+ " Ver: " + pkt.pheader.ver + " Len: "
-						+ pkt.pheader.len);
-
-				switch (pkt.pheader.type) {
-				case HANDSHAKE:
-					if (pkt.ppayload.payload[0] == 0x02) {
-						tlsvul = pkt.parseServerHello(tlsvul);
-					}
-					if (pkt.ppayload.payload[0] == 0x0E) {
-						key = true;
-					}
-					break;
-
-				case ALERT:
-					System.out.println("Alert Message level: "
-							+ pkt.ppayload.payload[0] + " Description: "
-							+ pkt.ppayload.payload[1]);
-					key = true;
-					break;
-
-				default:
-					key = true;
-					break;
-				}
-			}
-
+		
 
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
+
+			for(int i=0;i<9;i++)
+				System.out.println("-----header["+i+"]: "+Integer.toHexString(0xff & headpayload[i]));
+		
+			System.out.println("Alert Message level: " + headpayload[5]	+ " Description: " + headpayload[6]	);
+			
 			e.printStackTrace();
 		}
 
 	}
-
+	
 	public void heartbleadTest() {
 		Socket s;
 		InputStream in;
@@ -345,10 +313,10 @@ public class IVDTool {
 		boolean clientHelloDone = false;
 
 		// byte[] test_packet = TestPacket.makeTestPacket();
-
+	
 		try {
 			s = new Socket(host, port);
-
+			
 			in = s.getInputStream();
 			din = new DataInputStream(in);
 			out = s.getOutputStream();
@@ -394,7 +362,7 @@ public class IVDTool {
 				while (!esc) {
 					System.out.println("heartbeat...");
 					out.write(sslHB);
-
+		
 					Packet hpkt = Packet.readPacket(din);
 
 					switch (hpkt.pheader.type) {
@@ -456,12 +424,12 @@ public class IVDTool {
 		// dataParsing(tlsvul);
 
 
-
-
+		
+		
 		dataParsing();
 		saveFile();
 
-
+		
 		tlsvul.heartbleed.isVulnerable = false;
 		tlsvul.heartbleed.description = null;
 		tlsvul.heartbleed.level = null;
@@ -473,11 +441,11 @@ public class IVDTool {
 		tlsvul.sloth.level = null;
 
 		//JOptionPane.showMessageDialog(null, "hello world c");
-
+		
 	}
 
-	private static byte sslHB[] = new byte[] {
-			0x18, 0x03, 0x03, 	// content type: 18: 24, version: 0303 TLS1.2,
+	private static byte sslHB[] = new byte[] { 
+			0x18, 0x03, 0x03, 	// content type: 18: 24, version: 0303 TLS1.2, 
 			0x00, 0x19,		 		//length: 0019: 25
 			0x01, 					// Heartbeat MessageType: request
 			0x00, 0x06,			 	// payload_length: 0006
