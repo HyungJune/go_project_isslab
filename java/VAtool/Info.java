@@ -39,6 +39,7 @@ public class Info {
 	Element info_name17;
 	Element info_name18;
 	Element info_name19;
+
 	Element info_name20;
 	Element info_name21;
 	Element info_name22;
@@ -50,9 +51,16 @@ public class Info {
 	Element info_name28;
 
 	Element info_name29;
+	Element info_name30;
+	Element info_name31;
+	
+	Element info_name32;
+	Element info_name33;
+	Element info_name34;
+	
+	Element info_name35;
 
 	public Info() {
-		
 		InfoSet = new Element("InfoSet");
 
 		InfoCert = new Element("InfoCert");
@@ -110,7 +118,14 @@ public class Info {
 		info_name26 = new Element("slothName");
 		info_name27 = new Element("slothLevel");
 		info_name28 = new Element("slothDesc");
-		info_name29 = new Element("targetServer");
+		info_name29 = new Element("drownName");
+		info_name30 = new Element("drownLevel");
+		info_name31 = new Element("drownDesc");
+		info_name32 = new Element("poodleName");
+		info_name33 = new Element("poodleLevel");
+		info_name34 = new Element("poodleDesc");
+		
+		info_name35 = new Element("targetServer");
 
 		InfoCert.addContent(info_name20);
 		InfoCert.addContent(info_name21);
@@ -122,6 +137,12 @@ public class Info {
 		InfoCert.addContent(info_name27);
 		InfoCert.addContent(info_name28);
 		InfoCert.addContent(info_name29);
+		InfoCert.addContent(info_name30);
+		InfoCert.addContent(info_name31);
+		InfoCert.addContent(info_name32);
+		InfoCert.addContent(info_name33);
+		InfoCert.addContent(info_name34);
+		InfoCert.addContent(info_name35);
 
 		// InfoVul = new Element("InfoVul");
 
@@ -177,8 +198,6 @@ public class Info {
 		info_name18.setText(socket.getSession().getCipherSuite().toString());
 		info_name19.setText(socket.getSession().getProtocol().toString());
 		
-		
-		
 		info_name20.setText(tlsvul.heartbleed.name);
 		info_name21.setText(tlsvul.heartbleed.level);
 		info_name22.setText(tlsvul.heartbleed.description);
@@ -188,8 +207,14 @@ public class Info {
 		info_name26.setText(tlsvul.sloth.name);
 		info_name27.setText(tlsvul.sloth.level);
 		info_name28.setText(tlsvul.sloth.description);
+		info_name29.setText(tlsvul.drown.name);
+		info_name30.setText(tlsvul.drown.level);
+		info_name31.setText(tlsvul.drown.description);
+		info_name32.setText(tlsvul.poodle.name);
+		info_name33.setText(tlsvul.poodle.level);
+		info_name34.setText(tlsvul.poodle.description);
 
-		info_name29.setText(host);
+		info_name35.setText(host);
 	}
 
 	public void saveFile() {
@@ -197,7 +222,6 @@ public class Info {
 		doc.setRootElement(InfoSet);
 		FileOutputStream out;
 		try {
-		
 			out = new FileOutputStream("./info.ivd");
 			XMLOutputter serializer = new XMLOutputter();
 
@@ -211,6 +235,7 @@ public class Info {
 			serializer.output(doc, out);
 			out.flush();
 			out.close();
+			doc.removeContent(InfoSet);
 
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
