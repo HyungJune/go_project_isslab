@@ -227,13 +227,13 @@ public class IVDTool {
 
 	public void dataParsing() {
 		json_info = new JSONInfo(x509cert, uki, ski, tlsvul, socket, host);
-		info.setInfo(x509cert, uki, ski, tlsvul, socket, host);
+		//info.setInfo(x509cert, uki, ski, tlsvul, socket, host);
 		
 	}
 
 	public void saveFile() {
 		json_info.saveFile();
-		info.saveFile();
+		//info.saveFile();
 
 	}
 

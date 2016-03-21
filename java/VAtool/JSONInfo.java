@@ -22,7 +22,7 @@ import org.jdom2.Element;
 import org.json.simple.JSONObject;
 
 public class JSONInfo {
-	private LinkedHashMap<String, String> map = new LinkedHashMap();
+	private LinkedHashMap<String, String> map = new LinkedHashMap();	
 	public JSONInfo(X509Certificate x509cert, String uki, String ski, TLSVulnerability tlsvul, SSLSocket socket, String host){
 		map.put("public_key_parameter", x509cert.getPublicKey().toString());
 		map.put("authority_key_id", uki.substring(5,45));
@@ -52,7 +52,7 @@ public class JSONInfo {
 		map.put("version", String.valueOf(x509cert.getVersion()));
 		map.put("cipher_suite_name", socket.getSession().getCipherSuite().toString());
 		map.put("tls_version", socket.getSession().getProtocol().toString());
-
+		
 		map.put("hbName", tlsvul.heartbleed.name);
 		map.put("hbLevel", tlsvul.heartbleed.level);
 		map.put("hbDesc", tlsvul.heartbleed.description);
@@ -69,29 +69,29 @@ public class JSONInfo {
 		map.put("poodleLevel", tlsvul.poodle.level);
 		map.put("poodleDesc", tlsvul.poodle.description);
 		map.put("targetServer", host);
-
+		
 		//////////////////////////////////////////////////
 		String delims = "[\n]";
 		String[] public_key_parse =  x509cert.getPublicKey().toString().split(delims);
 		String[] public_key_info = public_key_parse[0].split("[ ]");
 		String public_key = public_key_info[1] + " " + public_key_info[4] + " " + public_key_info[5];
 		System.out.println(public_key);
-
-		map.put("Public key", public_key);
-
+		
+		map.put("publickey", public_key);
+		
 		String[] issuer_parse = x509cert.getIssuerX500Principal().getName().split("[,]");
 		String[] issuer = issuer_parse[0].split("[=]");
 		System.out.println(issuer[1]);
-
-		map.put("Issuer", issuer[1]);
-
+		
+		map.put("issuer", issuer[1]);
+		
 		String[] subject_parse = x509cert.getSubjectDN().getName().split("[,]");
 		String[] subject = subject_parse[0].split("[=]");
-
+		
 		System.out.println(subject[1]);
-
-		map.put("Subject", subject[1]);
-	/*
+		
+		map.put("subject", subject[1]);
+	/*	
 		try{
 			x509cert.verify(x509cert.getPublicKey());
 			map.put("Transparency", "True");
@@ -108,22 +108,24 @@ public class JSONInfo {
 		}
 */
 	}
-
+	
 	public void saveFile(){
 		JSONObject obj = new JSONObject();
 		Set<String> keys = map.keySet();
 		System.out.println("---------------------Test JSON -------------");
 		obj.putAll(map);
-
+		String key = "1234567891234567";
+		
 		try{
-			FileWriter file = new FileWriter("./info.json");
-			file.write(obj.toJSONString());
+			FileWriter file = new FileWriter("./info.ivd");
+			file.write(Security.encrypt(obj.toJSONString(),key));
+			//file.write(obj.toJSONString());
 			file.flush();
 			file.close();
 		}catch(IOException e){
 			e.printStackTrace();
 		}
-
+		
 		System.out.print(obj);
 	}
 }
