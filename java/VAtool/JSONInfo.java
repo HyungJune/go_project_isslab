@@ -2,6 +2,11 @@ package VAtool;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.SignatureException;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -67,6 +72,35 @@ public class JSONInfo {
 		System.out.println(public_key);
 		
 		map.put("Public key", public_key);
+		
+		String[] issuer_parse = x509cert.getIssuerX500Principal().getName().split("[,]");
+		String[] issuer = issuer_parse[0].split("[=]");
+		System.out.println(issuer[1]);
+		
+		map.put("Issuer", issuer[1]);
+		
+		String[] subject_parse = x509cert.getSubjectDN().getName().split("[,]");
+		String[] subject = subject_parse[0].split("[=]");
+		
+		System.out.println(subject[1]);
+		
+		map.put("Subject", subject[1]);
+	/*	
+		try{
+			x509cert.verify(x509cert.getPublicKey());
+			map.put("Transparency", "True");
+		}catch(NoSuchAlgorithmException e){
+			map.put("Transparency", "unsupported signature algorithms");
+		}catch(InvalidKeyException e){
+			map.put("Transparency", "incorrect key");
+		}catch(NoSuchProviderException e){
+			map.put("Transparency", "no default provider");
+		}catch(SignatureException e){
+			map.put("Transparency", "signature errors");
+		}catch(CertificateException e){
+			map.put("Transparency", "encoding errors");
+		}
+*/
 	}
 	
 	public void saveFile(){

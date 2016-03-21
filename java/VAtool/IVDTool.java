@@ -39,6 +39,7 @@ public class IVDTool {
 	TLSVulnerability tlsvul;
 
 	Info info;
+	JSONInfo json_info;
 
 	public IVDTool() {
 		host = null;
@@ -49,7 +50,6 @@ public class IVDTool {
 		tlsvul = new TLSVulnerability();
 
 		info = new Info();
-
 	}
 	
 	public void setHost(String host) {
@@ -226,85 +226,17 @@ public class IVDTool {
 	}
 
 	public void dataParsing() {
+		json_info = new JSONInfo(x509cert, uki, ski, tlsvul, socket, host);
 		info.setInfo(x509cert, uki, ski, tlsvul, socket, host);
+		
 	}
 
 	public void saveFile() {
+		json_info.saveFile();
 		info.saveFile();
 
 	}
 
-	public void drownTest(){
-		Socket socket;
-		InputStream in;
-		DataInputStream din;
-		OutputStream out;
-		byte[] headpayload = new byte[9];
-		
-		try {
-			socket = new Socket(host, port);
-			in = socket.getInputStream();
-			din = new DataInputStream(in);
-			out = socket.getOutputStream();
-			
-			System.out.println("--Handshake message--");
-			System.out.println("Client Hello... ---> " +host);
-			out.write(Packet.sslv2);
-			
-			System.out.println("Waiting for Server Hello...");
-			boolean key = false;
-			
-			
-			int bytelen = 0;
-			din.readFully(headpayload);
-			
-//			System.out.println("header["+0+"]: "+Integer.toHexString(0xff & onebyte[0]));
-			byte[] firstlen = new byte[1];
-			firstlen[0] = (byte) (headpayload[0]&0x3f);
-			bytelen = (headpayload[0]&0x80) == 0x80 ? 2 : 3;
-			
-			switch(bytelen){
-			case 2:
-							
-				headpayload[0] = firstlen[0];
-				
-				for(int i=0;i<headpayload.length;i++)
-					System.out.println("-----header["+i+"]: "+Integer.toHexString(0xff & headpayload[i]));
-				ByteBuffer bb = ByteBuffer.wrap(headpayload);
-				int payloadlen  = bb.getShort();
-				int HandshakeMsgType = bb.get();
-				int sessionIDhit = bb.get();
-				int certificatetype = bb.get();
-				int version = bb.getShort();
-				int certificatelen = bb.getShort();
-				
-				
-				break;
-			case 3:
-				//padding...
-				JOptionPane.showMessageDialog(null, "Padding");
-				break;
-				
-			} 
-
-		
-
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-
-			for(int i=0;i<9;i++)
-				System.out.println("-----header["+i+"]: "+Integer.toHexString(0xff & headpayload[i]));
-		
-			System.out.println("Alert Message level: " + headpayload[5]	+ " Description: " + headpayload[6]	);
-			
-			e.printStackTrace();
-		}
-
-	}
-	
 	public void heartbleadTest() {
 		Socket s;
 		InputStream in;
@@ -313,7 +245,7 @@ public class IVDTool {
 		boolean clientHelloDone = false;
 
 		// byte[] test_packet = TestPacket.makeTestPacket();
-	
+
 		try {
 			s = new Socket(host, port);
 			
@@ -360,9 +292,8 @@ public class IVDTool {
 			if (clientHelloDone) {
 				boolean esc = false;
 				while (!esc) {
-					System.out.println("heartbeat...");
+					System.out.println("headtbeat...");
 					out.write(sslHB);
-		
 					Packet hpkt = Packet.readPacket(din);
 
 					switch (hpkt.pheader.type) {
@@ -402,7 +333,6 @@ public class IVDTool {
 
 			}
 
-			s.close();
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -424,12 +354,9 @@ public class IVDTool {
 		// dataParsing(tlsvul);
 
 
-		
-		
 		dataParsing();
 		saveFile();
 
-		
 		tlsvul.heartbleed.isVulnerable = false;
 		tlsvul.heartbleed.description = null;
 		tlsvul.heartbleed.level = null;
@@ -440,8 +367,6 @@ public class IVDTool {
 		tlsvul.sloth.description = null;
 		tlsvul.sloth.level = null;
 
-		//JOptionPane.showMessageDialog(null, "hello world c");
-		
 	}
 
 	private static byte sslHB[] = new byte[] { 

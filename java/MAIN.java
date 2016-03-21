@@ -5,22 +5,22 @@ import java.security.NoSuchAlgorithmException;
 import javax.swing.JOptionPane;
 
 import Frame.IVDFrame;
+import VAtool.CipherSuite;
+import VAtool.IVDTool;
 
 public class MAIN {
 
 	/**
 	 * @param args
-	 * @throws IOException
-	 * @throws NoSuchAlgorithmException
-	 * @throws KeyManagementException
+	 * @throws IOException 
+	 * @throws NoSuchAlgorithmException 
+	 * @throws KeyManagementException 
 	 */
-	
-	public static void main(String[] args) throws KeyManagementException,
-			NoSuchAlgorithmException, IOException {
+	public static void main(String[] args) throws KeyManagementException, NoSuchAlgorithmException, IOException {
 		// TODO Auto-generated method stub
 
 		IVDFrame frame = new IVDFrame();
-		
+
 		System.out.println("END");
 	}
 

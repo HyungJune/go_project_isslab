@@ -39,7 +39,6 @@ public class Info {
 	Element info_name17;
 	Element info_name18;
 	Element info_name19;
-
 	Element info_name20;
 	Element info_name21;
 	Element info_name22;
@@ -53,6 +52,7 @@ public class Info {
 	Element info_name29;
 
 	public Info() {
+		
 		InfoSet = new Element("InfoSet");
 
 		InfoCert = new Element("InfoCert");
@@ -176,6 +176,9 @@ public class Info {
 		info_name17.setText(String.valueOf(x509cert.getVersion()));
 		info_name18.setText(socket.getSession().getCipherSuite().toString());
 		info_name19.setText(socket.getSession().getProtocol().toString());
+		
+		
+		
 		info_name20.setText(tlsvul.heartbleed.name);
 		info_name21.setText(tlsvul.heartbleed.level);
 		info_name22.setText(tlsvul.heartbleed.description);
@@ -194,6 +197,7 @@ public class Info {
 		doc.setRootElement(InfoSet);
 		FileOutputStream out;
 		try {
+		
 			out = new FileOutputStream("./info.ivd");
 			XMLOutputter serializer = new XMLOutputter();
 

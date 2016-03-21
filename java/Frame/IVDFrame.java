@@ -33,16 +33,13 @@ public class IVDFrame extends JFrame{
 	IVDTool ivd = new IVDTool();
 	public JProgressBar progressBar;
 	JLabel lblNewLabel;
-	public boolean key;
-	public boolean entered;
-	int progress=0;
+	
 	
 	public IVDFrame(){
 			
 
 		setTitle("IVD Tool");
-		key = false;
-		entered = false;
+		
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
 		
@@ -73,9 +70,8 @@ public class IVDFrame extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
-				entered = true;
+			
 				start();
-
 			}
 
 
@@ -84,9 +80,8 @@ public class IVDFrame extends JFrame{
 
 		btnAnalyze.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent arg0) {
-				entered = true;
+	
 				start();
-
 				
 			}
 		});
@@ -111,50 +106,20 @@ public class IVDFrame extends JFrame{
 		lblNewLabel = new JLabel("");
 		lblNewLabel.setBounds(468, 127, 57, 22);
 		getContentPane().add(lblNewLabel);
-		lblNewLabel.setText("0%");
+					
 		this.setSize(600,241);
 		this.setVisible(true);
 		
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+		go();
 		
-	}
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
 
+	}
 	
 	
 	public void start(){
 		String input = new String(textField.getText());
-		if(!input.contains(".")){
-			JOptionPane.showMessageDialog(null, "Invalid Input Format");
-			return;
-		}
-		
-		ivd.setHost(textField.getText());
-	  
-    	ivd.drownTest();
-
-		JOptionPane.showMessageDialog(null, "Complete!");
-	}
-	
-	public void run(){
-		
-		if(progressBar.getValue()<100){
-			System.out.println("progressBar!!!!!!!!!!!!!!!!!!");
-			progressBar.setValue(progress++);
-			lblNewLabel.setText(progress + "%");
-			try {
-				Thread.sleep(10);
-			} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		
-	}
-	
-	public void start1(){
-		String input = new String(textField.getText());
-
 		if(!input.contains(".")){
 			JOptionPane.showMessageDialog(null, "Invalid Input Format");
 			return;
@@ -166,16 +131,30 @@ public class IVDFrame extends JFrame{
     	while(true){
     		
     		if(ivd.socket.isBound()){
-
     			ivd.heartbleadTest();
     			break;
     		}
     	}
-
-    	entered = false;
+	//	ivd.start(progressBar, lblNewLabel);
 		JOptionPane.showMessageDialog(null, "Complete!");
-
 	}
 	
-	
+	public void go(){
+		/*
+		for(int i=0;i<=100;i++){
+			
+				progressBar.setValue(i);
+				lblNewLabel.setText(i+"%");
+				System.out.println("i: "+i);
+			
+					try {
+						Thread.sleep(50);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+						
+		}
+		*/
+	}
 }
