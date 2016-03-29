@@ -9,6 +9,7 @@ import javax.swing.JTextField;
 
 
 import VAtool.IVDTool;
+import VAtool.ProgressThread;
 
 
 import javax.swing.JButton;
@@ -32,14 +33,20 @@ public class IVDFrame extends JFrame{
 	private final JButton btnAnalyze = new JButton("collect");
 	IVDTool ivd = new IVDTool();
 	public JProgressBar progressBar;
+	ProgressThread pbt;
 	JLabel lblNewLabel;
+	public boolean key;
+	public boolean entered;
+	int progress=0;
+	public final int RCVD_ERROR = 5;
 	
 	
 	public IVDFrame(){
 			
 
 		setTitle("IVD Tool");
-		
+		key = false;
+
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
 		
@@ -70,8 +77,9 @@ public class IVDFrame extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
-			
+				
 				start();
+
 			}
 
 
@@ -80,8 +88,9 @@ public class IVDFrame extends JFrame{
 
 		btnAnalyze.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent arg0) {
-	
+				
 				start();
+
 				
 			}
 		});
@@ -103,58 +112,91 @@ public class IVDFrame extends JFrame{
 		progressBar.setValue(0);
 		getContentPane().add(progressBar);
 		
+		
+		
 		lblNewLabel = new JLabel("");
 		lblNewLabel.setBounds(468, 127, 57, 22);
 		getContentPane().add(lblNewLabel);
-					
+		lblNewLabel.setText("0%");
+		
+		pbt = new ProgressThread(progressBar, lblNewLabel);
+		
 		this.setSize(600,241);
 		this.setVisible(true);
 		
-		go();
-		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
 
+		
 	}
+
+
 	
+	public void run(){
+		
+		if(progressBar.getValue()<100){
+			System.out.println("progressBar!!!!!!!!!!!!!!!!!!");
+			progressBar.setValue(progress++);
+			lblNewLabel.setText(progress + "%");
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+	}
 	
 	public void start(){
 		String input = new String(textField.getText());
+
 		if(!input.contains(".")){
 			JOptionPane.showMessageDialog(null, "Invalid Input Format");
 			return;
 		}
 		
+		
 		ivd.setHost(textField.getText());
 	
     	ivd.defaultHandshake();
+    	
     	while(true){
     		
     		if(ivd.socket.isBound()){
+    			ivd.drownTest();
+    			ivd.poddleTest();
+    			ivd.rc4Test();
     			ivd.heartbleadTest();
     			break;
     		}
     	}
-	//	ivd.start(progressBar, lblNewLabel);
-		JOptionPane.showMessageDialog(null, "Complete!");
+
+    	boolean terminate = false;
+    	System.out.println("error: " + ivd.getTlsvul().error);
+    	if(ivd.getTlsvul().error != RCVD_ERROR){
+    	
+    		ivd.genInfo();
+    		terminate = true;
+    	
+    	}
+    	
+    	else{
+    		JOptionPane.showMessageDialog(null, "Error! - cannot generate info.ivd");
+    	}
+    	
+    	ivd.resetTlsvul();
+
+    	this.progressBar.setValue(100);
+    	this.lblNewLabel.setText(100+"%");
+    	    	
+    	if(terminate)
+    		JOptionPane.showMessageDialog(null, "Complete!");
+
+
+    	
+    	this.progressBar.setValue(0);
+    	this.lblNewLabel.setText(0+"%");
 	}
 	
-	public void go(){
-		/*
-		for(int i=0;i<=100;i++){
-			
-				progressBar.setValue(i);
-				lblNewLabel.setText(i+"%");
-				System.out.println("i: "+i);
-			
-					try {
-						Thread.sleep(50);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-						
-		}
-		*/
-	}
+	
 }

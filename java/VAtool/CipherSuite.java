@@ -6,15 +6,46 @@ public class CipherSuite {
 
 	HashMap<String, String> rc4Map;
 	HashMap<String, String> slothMap;
+	HashMap<String, String> AlertDescription;
 	
 	public CipherSuite() {
 		rc4Map = new HashMap<String, String>();
+		AlertDescription = new HashMap<String, String>();
 		initRc4();
+		initAlert();
 		initSloth();
 		
 		
 	}
 
+	private void initAlert(){
+		this.AlertDescription.put("0", "close_notify");
+		this.AlertDescription.put("10", "unexpected_message");
+		this.AlertDescription.put("20", "bad_record_mac");
+		this.AlertDescription.put("21", "decryption_failed_RESERVED");
+		this.AlertDescription.put("22", "record_overflow");
+		this.AlertDescription.put("30", "decompression_failure");
+		this.AlertDescription.put("40", "handshake_failure");
+		this.AlertDescription.put("41", "no_certificate_RESERVED");
+		this.AlertDescription.put("42", "bad_certificate");
+		this.AlertDescription.put("43", "unsupported_certificate");
+		this.AlertDescription.put("44", "certificate_revoked");
+		this.AlertDescription.put("45", "certificate_expired");
+		this.AlertDescription.put("46", "certificate_unknown");
+		this.AlertDescription.put("47", "illegal_parameter");
+		this.AlertDescription.put("48", "unknown_ca");
+		this.AlertDescription.put("49", "access_denied");
+		this.AlertDescription.put("50", "decode_error");
+		this.AlertDescription.put("51", "decrypt_error");
+		this.AlertDescription.put("60", "export_restriction_RESERVED");
+		this.AlertDescription.put("70", "protocol_version");
+		this.AlertDescription.put("71", "insufficient_security");
+		this.AlertDescription.put("80", "internal_error");
+		this.AlertDescription.put("90", "user_canceled");
+		this.AlertDescription.put("100", "no_renegotiation");
+		this.AlertDescription.put("110", "unsupported_extension");
+	}
+	
 	private void initSloth(){
 		
 	}

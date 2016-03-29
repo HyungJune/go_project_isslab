@@ -207,6 +207,7 @@ public class Info {
 		info_name26.setText(tlsvul.sloth.name);
 		info_name27.setText(tlsvul.sloth.level);
 		info_name28.setText(tlsvul.sloth.description);
+		
 		info_name29.setText(tlsvul.drown.name);
 		info_name30.setText(tlsvul.drown.level);
 		info_name31.setText(tlsvul.drown.description);

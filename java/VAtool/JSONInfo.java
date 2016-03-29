@@ -1,31 +1,31 @@
 package VAtool;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.SignatureException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Set;
 
 import javax.net.ssl.SSLSocket;
-import javax.security.cert.CertificateParsingException;
+import javax.swing.JOptionPane;
 
-import org.jdom2.Element;
 import org.json.simple.JSONObject;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.security.cert.X509Certificate;
+
 public class JSONInfo {
-	private LinkedHashMap<String, String> map = new LinkedHashMap();	
-	public JSONInfo(X509Certificate x509cert, String uki, String ski, TLSVulnerability tlsvul, SSLSocket socket, String host){
+	private LinkedHashMap<String, String> map;	
+	
+	public JSONInfo(){
+		map = new LinkedHashMap();	
+	}
+	
+	public void setJSONInfo(X509Certificate x509cert, String uki, String ski, TLSVulnerability tlsvul, SSLSocket socket, String host){
 		map.put("public_key_parameter", x509cert.getPublicKey().toString());
-		map.put("authority_key_id", uki.substring(5,45));
+
+		if(uki == null)
+			map.put("authority_key_id", null);
+		else
+			map.put("authority_key_id", uki.substring(5,45));
 		map.put("basic_constraints", String.valueOf(x509cert.getBasicConstraints()));
 		map.put("certificate_policies", null);
 		try{
@@ -34,7 +34,10 @@ public class JSONInfo {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		map.put("subject_key_id", ski.substring(1,41));
+		if (ski == null)
+			map.put("subject_key_id", null);
+		else
+			map.put("subject_key_id", ski.substring(1, 41));
 		map.put("digital_signature", String.valueOf(x509cert.getKeyUsage()[0]));
 		map.put("key_encipherment", String.valueOf(x509cert.getKeyUsage()[2]));
 		try{
@@ -68,6 +71,7 @@ public class JSONInfo {
 		map.put("poodleName", tlsvul.poodle.name);
 		map.put("poodleLevel", tlsvul.poodle.level);
 		map.put("poodleDesc", tlsvul.poodle.description);
+		
 		map.put("targetServer", host);
 		
 		//////////////////////////////////////////////////
@@ -91,22 +95,7 @@ public class JSONInfo {
 		System.out.println(subject[1]);
 		
 		map.put("subject", subject[1]);
-	/*	
-		try{
-			x509cert.verify(x509cert.getPublicKey());
-			map.put("Transparency", "True");
-		}catch(NoSuchAlgorithmException e){
-			map.put("Transparency", "unsupported signature algorithms");
-		}catch(InvalidKeyException e){
-			map.put("Transparency", "incorrect key");
-		}catch(NoSuchProviderException e){
-			map.put("Transparency", "no default provider");
-		}catch(SignatureException e){
-			map.put("Transparency", "signature errors");
-		}catch(CertificateException e){
-			map.put("Transparency", "encoding errors");
-		}
-*/
+
 	}
 	
 	public void saveFile(){

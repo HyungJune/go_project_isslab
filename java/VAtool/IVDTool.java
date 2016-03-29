@@ -30,16 +30,18 @@ public class IVDTool {
 
 	public static final int HANDSHAKE = 22;
 	public static final int ALERT = 21;
-
+	
 	private String host;
 	private static int port;
 
 	static boolean hbstart;
 	String ski, uki;
 	TLSVulnerability tlsvul;
+	boolean rc4attack; 
+	public String sigAlgName;
 
-	Info info;
-	JSONInfo json_info;
+//	Info info;
+	JSONInfo jsoninfo;
 
 	public IVDTool() {
 		host = null;
@@ -48,9 +50,14 @@ public class IVDTool {
 		ski = null;
 		hbstart = false;
 		tlsvul = new TLSVulnerability();
-
-		info = new Info();
+		rc4attack = false;
+		sigAlgName = null;
+		
+//		info = new Info();
+		jsoninfo = new JSONInfo();
 	}
+	
+	public TLSVulnerability getTlsvul(){return tlsvul;}
 	
 	public void setHost(String host) {
 		this.host = host;
@@ -76,7 +83,7 @@ public class IVDTool {
 			socket = (SSLSocket) factory.createSocket(host, port);
 		} catch (UnknownHostException e2) {
 			// TODO Auto-generated catch block
-			JOptionPane.showMessageDialog(null, "Unknown Host Exception");
+			JOptionPane.showMessageDialog(null, "Unknown Host Exception\nPlease Re-enter host name");
 			e2.printStackTrace();
 		} catch (IOException e2) {
 			// TODO Auto-generated catch block
@@ -90,6 +97,7 @@ public class IVDTool {
 	//		SSLParameters sp = socket.getSSLParameters();
 
 			socket.setEnabledCipherSuites(suites);
+		
 			socket.addHandshakeCompletedListener(new HandshakeCompletedListener() {
 
 				public void handshakeCompleted(HandshakeCompletedEvent e) {
@@ -196,6 +204,21 @@ public class IVDTool {
 								.println("https.tls.certificate.parsed.extensions.authority_key_id : "
 										+ uki.substring(5, 45));
 
+						sigAlgName =  x509cert.getSigAlgName().toString();
+						
+						if(sigAlgName.contains("SHA128") || sigAlgName.contains("MD5") || sigAlgName.contains("SHA1")){
+							
+							tlsvul.sloth.isVulnerable = true;
+							tlsvul.sloth.description = new String("The target server supports "+sigAlgName+" signature algorithm");
+							tlsvul.sloth.level = new String("Vulnerable");
+						}
+						
+						else{
+							tlsvul.sloth.isVulnerable = false;
+							tlsvul.sloth.description = new String("The target server does not support MD5 and SHA1 algorithm");
+							tlsvul.sloth.level = new String("Secure");
+						}
+						
 						socket.close();
 
 					} catch (SSLPeerUnverifiedException e1) {
@@ -207,6 +230,7 @@ public class IVDTool {
 					} catch (IOException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
+						
 					}
 				}
 			});
@@ -218,34 +242,185 @@ public class IVDTool {
 
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
+		
 			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("!------------------default error");
+			tlsvul.error++;
+			//e.printStackTrace();
 		}
 	}
 
 	public void dataParsing() {
-		json_info = new JSONInfo(x509cert, uki, ski, tlsvul, socket, host);
-		//info.setInfo(x509cert, uki, ski, tlsvul, socket, host);
-		
+	//	info.setInfo(x509cert, uki, ski, tlsvul, socket, host);
+		jsoninfo.setJSONInfo(x509cert, uki, ski, tlsvul, socket, host);
 	}
 
 	public void saveFile() {
-		json_info.saveFile();
 		//info.saveFile();
-
+		jsoninfo.saveFile();
 	}
 
-	public void heartbleadTest() {
+	public void poddleTest(){
 		Socket s;
 		InputStream in;
 		DataInputStream din;
 		OutputStream out;
-		boolean clientHelloDone = false;
+		tlsvul.isPoodleattack = true;
 
 		// byte[] test_packet = TestPacket.makeTestPacket();
+	
+		try {
+			s = new Socket(host, port);
+			
+			in = s.getInputStream();
+			din = new DataInputStream(in);
+			out = s.getOutputStream();
 
+			System.out.println("--Handshake message--");
+			System.out.println("Client Hello...");
+			out.write(Packet.sslv3_test);
+
+			System.out.println("Waiting for Server Hello...");
+			boolean key = false;
+			while (!key) {
+				Packet pkt = Packet.readPacket(din);
+				System.out.println("Handshake: Type:" + pkt.pheader.type
+						+ " Ver: " + pkt.pheader.ver + " Len: "
+						+ pkt.pheader.len);
+
+				switch (pkt.pheader.type) {
+				case HANDSHAKE:
+					if (pkt.ppayload.payload[0] == 0x02) {
+						tlsvul = pkt.parseServerHello(tlsvul);
+					}
+					if (pkt.ppayload.payload[0] == 0x0E) {
+						key = true;
+					}
+					break;
+
+				case ALERT:
+					System.out.println("Alert Message level: "
+							+ pkt.ppayload.payload[0] + " Description: "
+							+ pkt.ppayload.payload[1]);
+					
+					tlsvul.poodle.level = new String("Secure");
+					tlsvul.poodle.description = new String("The target server dose not support SSLv3(with CBC mode) it is secure against POODLE attack");
+					key = true;
+					break;
+
+				default:
+					key = true;
+					break;
+				}
+			}
+
+			
+			
+			s.close();
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			tlsvul.poodle.level = new String("Secure");
+			tlsvul.poodle.description = new String("The target server dose not support SSLv3(with CBC mode) it is secure against POODLE attack");
+			System.out.println("!------------------POODLE attack error");
+			tlsvul.error++;
+			//e.printStackTrace();
+		}	
+		
+	}
+	
+	public void drownTest(){
+		Socket socket;
+		InputStream in;
+		DataInputStream din;
+		OutputStream out;
+		byte[] headpayload = new byte[9];
+		
+		try {
+			socket = new Socket(host, port);
+			in = socket.getInputStream();
+			din = new DataInputStream(in);
+			out = socket.getOutputStream();
+			
+			System.out.println("--Handshake message--");
+			System.out.println("Client Hello... ---> " +host);
+			out.write(Packet.sslv2_test);
+			
+			System.out.println("Waiting for Server Hello...");
+			boolean key = false;
+			
+			
+			int bytelen = 0;
+			din.readFully(headpayload);
+			
+//			System.out.println("header["+0+"]: "+Integer.toHexString(0xff & onebyte[0]));
+			byte[] firstlen = new byte[1];
+			firstlen[0] = (byte) (headpayload[0]&0x3f);
+			bytelen = (headpayload[0]&0x80) == 0x80 ? 2 : 3;
+			
+			switch(bytelen){
+			case 2:
+							
+				headpayload[0] = firstlen[0];
+				
+				for(int i=0;i<headpayload.length;i++)
+					System.out.println("-----header["+i+"]: "+Integer.toHexString(0xff & headpayload[i]));
+				ByteBuffer bb = ByteBuffer.wrap(headpayload);
+				int payloadlen  = bb.getShort();
+				int HandshakeMsgType = bb.get();
+				int sessionIDhit = bb.get();
+				int certificatetype = bb.get();
+				int version = bb.getShort();
+				int certificatelen = bb.getShort();
+				
+				this.tlsvul.drown.isVulnerable = true;
+				this.tlsvul.drown.level = new String("Vulnerable");
+				this.tlsvul.drown.description = new String("Server supports SSLv2. It has vulnerability on DROWN attack. ");
+
+				
+				break;
+			case 3:
+				//padding...
+				//JOptionPane.showMessageDialog(null, "Padding");
+				break;
+				
+			} 
+
+		
+
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+/*
+			for(int i=0;i<9;i++)
+				System.out.println("-----header["+i+"]: "+Integer.toHexString(0xff & headpayload[i]));
+		
+			System.out.println("Alert Message level: " + headpayload[5]	+ " Description: " + headpayload[6]	);*/
+			this.tlsvul.drown.isVulnerable = false;
+			this.tlsvul.drown.level = new String("Secure");
+			this.tlsvul.drown.description = new String("Server does not support SSLv2. It is secure against DROWN attack. ");
+			tlsvul.error++;
+			System.out.println("!------------------Drown error");
+			//e.printStackTrace();
+		}
+
+	}
+	
+	public void rc4Test(){
+		Socket s;
+		InputStream in;
+		DataInputStream din;
+		OutputStream out;
+		tlsvul.isRc4attack = true;
+
+		// byte[] test_packet = TestPacket.makeTestPacket();
+	
 		try {
 			s = new Socket(host, port);
 			
@@ -259,6 +434,74 @@ public class IVDTool {
 
 			System.out.println("Waiting for Server Hello...");
 			boolean key = false;
+			while (!key) {
+				Packet pkt = Packet.readPacket(din);
+				System.out.println("Handshake: Type:" + pkt.pheader.type
+						+ " Ver: " + pkt.pheader.ver + " Len: "
+						+ pkt.pheader.len);
+
+				switch (pkt.pheader.type) {
+				case HANDSHAKE:
+					if (pkt.ppayload.payload[0] == 0x02) {
+						tlsvul = pkt.parseServerHello(tlsvul);
+					}
+					if (pkt.ppayload.payload[0] == 0x0E) {
+						key = true;
+					}
+					break;
+
+				case ALERT:
+					System.out.println("Alert Message level: "
+							+ pkt.ppayload.payload[0] + " Description: "
+							+ pkt.ppayload.payload[1]);
+					key = true;
+					tlsvul.rc4.isVulnerable = false;
+					tlsvul.rc4.description = new String("The target server does not support RC4 encryption");
+					tlsvul.rc4.level = new String("Secure");
+			/*		tlsvul.sloth.isVulnerable = false;
+					tlsvul.sloth.description = new String("The target server does not support MD5 and SHA1 algorithm");
+					tlsvul.sloth.level = new String("Secure");*/
+					break;
+
+				default:
+					key = true;
+					break;
+				}
+			}
+
+			s.close();
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			tlsvul.error++;
+			// TODO Auto-generated catch block
+			System.out.println("!------------------RC4 attack error");
+			//e.printStackTrace();
+		}
+	}
+	
+	public void heartbleadTest() {
+		Socket s;
+		InputStream in;
+		DataInputStream din;
+		OutputStream out;
+		boolean clientHelloDone = false;
+	
+		try {
+			s = new Socket(host, port);
+			
+			in = s.getInputStream();
+			din = new DataInputStream(in);
+			out = s.getOutputStream();
+
+			System.out.println("--Handshake message--");
+			System.out.println("Client Hello...");
+			out.write(Packet.hb_test);
+
+			System.out.println("Waiting for Server Hello...");
+			boolean key = false;
+			s.setSoTimeout(2000);
 			while (!key) {
 				Packet pkt = Packet.readPacket(din);
 				System.out.println("Handshake: Type:" + pkt.pheader.type
@@ -292,8 +535,9 @@ public class IVDTool {
 			if (clientHelloDone) {
 				boolean esc = false;
 				while (!esc) {
-					System.out.println("headtbeat...");
-					out.write(sslHB);
+					System.out.println("heartbeat...");
+					out.write(Packet.HBrequest);
+		
 					Packet hpkt = Packet.readPacket(din);
 
 					switch (hpkt.pheader.type) {
@@ -333,30 +577,25 @@ public class IVDTool {
 
 			}
 
+			s.close();
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			tlsvul.error++;
+			System.out.println("!------------------Heartbleed error");
+			tlsvul.heartbleed.isVulnerable = false;
+			tlsvul.heartbleed.description = new String(
+					"No heartbeat response received, server likely not vulnerable");
+			tlsvul.heartbleed.level = new String("Secure");
+			//e.printStackTrace();
 		}
 
-		System.out.println("Heartbleed: " + tlsvul.heartbleed.isVulnerable
-				+ "\nDescription: " + tlsvul.heartbleed.description
-				+ " \nLevel: " + tlsvul.heartbleed.level);
-		System.out.println("RC4: " + tlsvul.rc4.isVulnerable
-				+ "\nDescription: " + tlsvul.rc4.description + "\nLevel: "
-				+ tlsvul.rc4.level);
-		System.out.println("SLOTH: " + tlsvul.sloth.isVulnerable
-				+ "\nDescription: " + tlsvul.sloth.description + "\nLevel: "
-				+ tlsvul.sloth.level);
 
-		// dataParsing(tlsvul);
-
-
-		dataParsing();
-		saveFile();
-
+	}
+	
+	public void resetTlsvul(){
 		tlsvul.heartbleed.isVulnerable = false;
 		tlsvul.heartbleed.description = null;
 		tlsvul.heartbleed.level = null;
@@ -366,16 +605,39 @@ public class IVDTool {
 		tlsvul.sloth.isVulnerable = false;
 		tlsvul.sloth.description = null;
 		tlsvul.sloth.level = null;
-
+		tlsvul.drown.isVulnerable = false;
+		tlsvul.drown.description = null;
+		tlsvul.drown.level = null;
+		tlsvul.poodle.isVulnerable = false;
+		tlsvul.poodle.description = null;
+		tlsvul.poodle.level = null;
+		tlsvul.error = 0;
 	}
+	
+	public void genInfo(){
+		dataParsing();
+		saveFile();
+		
+		System.out.println("Heartbleed: " + tlsvul.heartbleed.isVulnerable
+				+ "\nDescription: " + tlsvul.heartbleed.description
+				+ " \nLevel: " + tlsvul.heartbleed.level);
+		System.out.println("RC4: " + tlsvul.rc4.isVulnerable
+				+ "\nDescription: " + tlsvul.rc4.description + "\nLevel: "
+				+ tlsvul.rc4.level);
+		System.out.println("SLOTH: " + tlsvul.sloth.isVulnerable
+				+ "\nDescription: " + tlsvul.sloth.description + "\nLevel: "
+				+ tlsvul.sloth.level);
+		
+		System.out.println("DROWN: " + tlsvul.drown.isVulnerable
+				+ "\nDescription: " + tlsvul.drown.description
+				+ " \nLevel: " + tlsvul.drown.level);
+		System.out.println("POODLE: " + tlsvul.poodle.isVulnerable
+				+ "\nDescription: " + tlsvul.poodle.description
+				+ " \nLevel: " + tlsvul.poodle.level);
+		
+	}
+	
 
-	private static byte sslHB[] = new byte[] { 
-			0x18, 0x03, 0x03, 	// content type: 18: 24, version: 0303 TLS1.2, 
-			0x00, 0x19,		 		//length: 0019: 25
-			0x01, 					// Heartbeat MessageType: request
-			0x00, 0x06,			 	// payload_length: 0006
-			0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 // The padding.Len MUST be  at least 16: default 16.
-	};
+
 
 }
